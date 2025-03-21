@@ -13,7 +13,7 @@ screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
 pygame.display.set_caption("Arcade -IA Minimax")
 
 # Cargar la imagen del tile
-tile_image = pygame.image.load("Fondo/tileGrass.png") 
+tile_image = pygame.image.load("Assets/Fondo/tileGrass.png") 
 tile_image = pygame.transform.scale(tile_image, (TILE_SIZE, TILE_SIZE))  # Escalar
 
 # Bucle principal
