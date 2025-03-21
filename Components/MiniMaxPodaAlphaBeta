@@ -1,0 +1,84 @@
+class AlphaBeta:
+    # Constructor de la clase que recibe un árbol de juego como parámetro
+    def __init__(self, arbol_juego):
+        self.arbol_juego = arbol_juego  # Guarda el árbol de juego
+        self.raiz = arbol_juego.raiz  # Guarda la referencia al nodo raíz del árbol de juego
+        return
+
+    # Método principal para realizar la búsqueda Alpha-Beta desde el nodo raíz
+    def busqueda_alpha_beta(self, nodo):
+        infinito = float('inf')  # Definimos infinito positivo
+        mejor_valor = -infinito  # Inicializamos el mejor valor con el menor posible
+        beta = infinito  # Inicializamos Beta con el mayor valor posible
+
+        sucesores = self.obtener_sucesores(nodo)  # Obtiene los nodos hijos del nodo actual
+        mejor_estado = None  # Variable para almacenar el mejor estado encontrado
+
+        # Iteramos sobre los sucesores para encontrar el mejor movimiento
+        for estado in sucesores:
+            valor = self.valor_min(estado, mejor_valor, beta)  # Llamamos a la función de MIN
+            if valor > mejor_valor:  # Si encontramos un valor mejor, lo actualizamos
+                mejor_valor = valor
+                mejor_estado = estado  # Guardamos el mejor estado encontrado
+
+        # Imprimimos el mejor valor encontrado para el nodo raíz
+        print("AlphaBeta: Valor de el nodo raíz: = " + str(mejor_valor))
+        print("AlphaBeta: El mejor estado es: " + mejor_estado.nombre)  # Mostramos el nombre del mejor estado
+        return mejor_estado  # Retornamos el mejor estado encontrado
+
+    # Función para calcular el valor máximo (turno del jugador MAX)
+    def valor_max(self, nodo, alpha, beta):
+        print("AlphaBeta->MAX: Nodo visitado :: " + nodo.nombre)  # Imprimimos el nodo que visitamos
+        if self.es_terminal(nodo):  # Si el nodo es terminal, retornamos su valor de utilidad
+            return self.obtener_utilidad(nodo)
+
+        infinito = float('inf')  # Definimos infinito positivo
+        valor = -infinito  # Inicializamos el valor con el menor posible
+
+        sucesores = self.obtener_sucesores(nodo)  # Obtenemos los hijos del nodo actual
+
+        # Recorremos los sucesores del nodo MAX
+        for estado in sucesores:
+            valor = max(valor, self.valor_min(estado, alpha, beta))  # Llamamos a la función MIN para evaluar el nodo
+            if valor >= beta:  # Poda Beta: Si el valor es mayor o igual a Beta, cortamos la exploración
+                return valor
+            alpha = max(alpha, valor)  # Actualizamos Alpha con el mejor valor encontrado
+
+        return valor  # Retornamos el mejor valor encontrado para MAX
+
+    # Función para calcular el valor mínimo (turno del jugador MIN)
+    def valor_min(self, nodo, alpha, beta):
+        print("AlphaBeta->MIN: Nodo visitado :: " + nodo.nombre)  # Imprimimos el nodo que visitamos
+        if self.es_terminal(nodo):  # Si el nodo es terminal, retornamos su valor de utilidad
+            return self.obtener_utilidad(nodo)
+
+        infinito = float('inf')  # Definimos infinito positivo
+        valor = infinito  # Inicializamos el valor con el mayor posible
+
+        sucesores = self.obtener_sucesores(nodo)  # Obtenemos los hijos del nodo actual
+
+        # Recorremos los sucesores del nodo MIN
+        for estado in sucesores:
+            valor = min(valor, self.valor_max(estado, alpha, beta))  # Llamamos a la función MAX para evaluar el nodo
+            if valor <= alpha:  # Poda Alpha: Si el valor es menor o igual a Alpha, cortamos la exploración
+                return valor
+            beta = min(beta, valor)  # Actualizamos Beta con el mejor valor encontrado
+
+        return valor  # Retornamos el mejor valor encontrado para MIN
+
+    # MÉTODOS AUXILIARES
+
+    # Método que obtiene los sucesores de un nodo (nodos hijos)
+    def obtener_sucesores(self, nodo):
+        assert nodo is not None  # Asegura que el nodo no sea None
+        return nodo.hijos  # Retorna la lista de hijos del nodo
+
+    # Método que verifica si un nodo es terminal (no tiene hijos)
+    def es_terminal(self, nodo):
+        assert nodo is not None  # Asegura que el nodo no sea None
+        return len(nodo.hijos) == 0  # Retorna True si el nodo no tiene hijos, False en caso contrario
+
+    # Método que obtiene el valor de utilidad de un nodo (solo válido para nodos terminales)
+    def obtener_utilidad(self, nodo):
+        assert nodo is not None  # Asegura que el nodo no sea None
+        return nodo.valor  # Retorna el valor de utilidad del nodo
