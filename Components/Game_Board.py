@@ -21,7 +21,7 @@ tile_image_grass = pygame.transform.scale(tile_image_grass, (TILE_SIZE, TILE_SIZ
 tile_image_dirt = pygame.image.load("Assets/Fondo/tileDirt.png")
 tile_image_dirt = pygame.transform.scale(tile_image_dirt, (TILE_SIZE, TILE_SIZE))
 
-tile_image_goo = pygame.image.load("Assets/Fondo/tileGoo.png")
+tile_image_goo = pygame.image.load("Assets/Fondo/tileSand.png")
 tile_image_goo = pygame.transform.scale(tile_image_goo, (TILE_SIZE, TILE_SIZE))
 
 grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
