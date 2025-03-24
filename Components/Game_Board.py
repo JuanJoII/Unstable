@@ -68,9 +68,9 @@ while running:
                 if grid[row][col] == 1:
                     screen.blit(tile_image_dirt, (x, y))
                 if grid[row][col] == 2:
-                    screen.blit(tile_image_grass, (x, y))
-                if grid[row][col] == 3:
                     screen.blit(tile_image_goo, (x, y))
+                if grid[row][col] == 3:
+                    screen.blit(tile_image_grass, (x, y))
 
     
     pygame.draw.rect(screen, (0, 0, 255), (player_x * TILE_SIZE + MARGIN, player_y * TILE_SIZE + MARGIN, TILE_SIZE, TILE_SIZE))
