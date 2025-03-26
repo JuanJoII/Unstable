@@ -2,11 +2,24 @@ import copy
 import pygame
 from Entities.Grid import get_valid_moves
 
-class AI:
+class AI(pygame.sprite.Sprite):
     def __init__(self, x, y):
+        super().__init__()
         self.x = x
         self.y = y
         self.color = (255, 0, 0)  # Red
+        
+        
+        self.sprites = [
+            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_1.png'),
+            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_2.png'),
+            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_3.png'),
+            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_4.png')
+        ]
+        self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+        self.rect = self.image.get_rect(center=(x, y))
+        self.animation_speed = 0.1
     
     @property
     def pos(self):
@@ -75,3 +88,17 @@ class AI:
             grid[best_move[1]][best_move[0]] -= 1
             return grid[best_move[1]][best_move[0]] < 0
         return False
+    
+    def update(self):
+        self.current_sprite += self.animation_speed
+        if self.current_sprite >= len(self.sprites):
+            self.current_sprite = 0
+        self.image = self.sprites[int(self.current_sprite)]
+        
+    def draw(self, screen, tile_size, margin):
+        self.tile_size = tile_size
+        self.margin = margin
+        
+        self.rect.center = (self.x * tile_size + margin + tile_size//2, self.y * tile_size + margin + tile_size//2)
+        
+        screen.blit(self.image, self.rect)
