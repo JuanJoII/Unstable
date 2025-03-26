@@ -1,35 +1,67 @@
 import copy
 import pygame
 from Entities.Grid import get_valid_moves
+from constantes import CHARACTER_SCALE
 
 class AI(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.x = x
         self.y = y
-        self.color = (255, 0, 0)  # Red
+        self.color = (255, 0, 0) 
+        self.sprite_scale = CHARACTER_SCALE
         
+       
+        self.original_sprites = self._load_sprites()
+        self.sprites = self._scale_sprites(self.original_sprites)
         
-        self.sprites = [
-            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_1.png'),
-            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_2.png'),
-            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_3.png'),
-            pygame.image.load('Assets/Base Character/Frog/Enemyfrogidle_4.png')
-        ]
         self.current_sprite = 0
         self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect(center=(x, y))
         self.animation_speed = 0.1
+        self.tile_size = 0  
+        self.margin = 0
     
+    def _load_sprites(self):
+        """Carga los sprites originales"""
+        sprite_paths = [
+            'Assets/Base Character/Frog/Enemyfrogidle_1.png',
+            'Assets/Base Character/Frog/Enemyfrogidle_2.png',
+            'Assets/Base Character/Frog/Enemyfrogidle_3.png',
+            'Assets/Base Character/Frog/Enemyfrogidle_4.png'
+        ]
+        
+        loaded = []
+        for path in sprite_paths:
+            try:
+                loaded.append(pygame.image.load(path).convert_alpha())
+            except pygame.error as e:
+                print(f"Error cargando sprite {path}: {e}")
+                placeholder = pygame.Surface((32, 32), pygame.SRCALPHA)
+                placeholder.fill((255, 0, 0, 128)) 
+                loaded.append(placeholder)
+        
+        return loaded
+    
+    def _scale_sprites(self, sprites):
+        """Escala todos los sprites según el factor"""
+        scaled = []
+        for sprite in sprites:
+            new_width = int(sprite.get_width() * self.sprite_scale)
+            new_height = int(sprite.get_height() * self.sprite_scale)
+            scaled.append(pygame.transform.smoothscale(sprite, (new_width, new_height)))
+        return scaled
+    
+    def set_scale(self, new_scale):
+        """Cambia el tamaño dinámicamente"""
+        self.sprite_scale = new_scale
+        self.sprites = self._scale_sprites(self.original_sprites)
+        self.image = self.sprites[int(self.current_sprite)]
+        self.rect = self.image.get_rect(center=self.rect.center)
+
     @property
     def pos(self):
         return [self.x, self.y]
-    
-    def draw(self, screen, tile_size, margin):
-        pygame.draw.rect(screen, self.color, 
-                        (self.x * tile_size + margin, 
-                         self.y * tile_size + margin, 
-                         tile_size, tile_size))
     
     def _is_terminal(self, grid, player_pos, grid_width, grid_height):
         """Check if the game has reached a terminal state"""
@@ -98,7 +130,6 @@ class AI(pygame.sprite.Sprite):
     def draw(self, screen, tile_size, margin):
         self.tile_size = tile_size
         self.margin = margin
-        
-        self.rect.center = (self.x * tile_size + margin + tile_size//2, self.y * tile_size + margin + tile_size//2)
-        
+        self.rect.center = (self.x * tile_size + margin + tile_size//2, 
+                           self.y * tile_size + margin + tile_size//2)
         screen.blit(self.image, self.rect)

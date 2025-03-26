@@ -97,9 +97,9 @@ class Game:
         current_time = pygame.time.get_ticks()
         
         if not self.game_over and not self.show_start_screen:
-            # Actualiza animaciones del jugador y IA (si tienen)
-            self.player.update()  # <-- ¡Esto hace que la animación avance!
-            if hasattr(self.ai, 'update'):  # Si la IA también tiene animación
+            
+            self.player.update()  
+            if hasattr(self.ai, 'update'): 
                 self.ai.update()
             
             if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
