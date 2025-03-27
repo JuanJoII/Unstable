@@ -65,18 +65,23 @@ class Player(pygame.sprite.Sprite):
     
     def move(self, dx, dy, grid, ai_pos, grid_width, grid_height):
         new_x, new_y = self.x + dx, self.y + dy
-        if (0 <= new_x < grid_width) and (0 <= new_y < grid_height) and [new_x, new_y] != ai_pos:
-            # Primero restamos de la posición ACTUAL (antes de mover)
-            grid[self.y][self.x] -= 1  # <--- Corrección clave aquí
-            
-            # Luego actualizamos la posición
-            self.x, self.y = new_x, new_y
-            
-            # Actualizamos gráficos
-            self.rect.center = (self.x * self.tile_size + self.margin + self.tile_size//2, 
-                            self.y * self.tile_size + self.margin + self.tile_size//2)
-            return True
-        return False
+        
+        if not (0 <= new_x < grid_width and 0 <= new_y < grid_height):
+            return False
+        if [new_x, new_y] == ai_pos:
+            return False
+        
+        grid[self.y][self.x] -= 1
+        
+        self.x, self.y = new_x, new_y
+        
+
+        self.rect.center = (
+            self.x * self.tile_size + self.margin + self.tile_size//2, 
+            self.y * self.tile_size + self.margin + self.tile_size//2
+        )
+        
+        return True
     
     def update(self):
         self.current_sprite += self.animation_speed

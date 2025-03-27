@@ -57,40 +57,57 @@ class Game:
                 self.winner = "ai"
 
     def handle_events(self):
-        """Handle all pygame events"""
+        """Handle all pygame events including player movement and game states"""
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 return False
+
             
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     start_button = draw_start_screen(self.screen)
-                    if start_button.collidepoint(event.pos):
+                    if start_button and start_button.collidepoint(event.pos):
                         self.show_start_screen = False
+                        self.reset_game()
+                return True  
+
+           
+            if self.game_over:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    button_rect = draw_end_screen(self.screen, self.winner)
+                    if button_rect and button_rect.collidepoint(event.pos):
+                        self.reset_game()
+                        self.show_start_screen = True
+                return True 
+
             
-            elif self.game_over and event.type == pygame.MOUSEBUTTONDOWN:
-                button_rect = draw_end_screen(self.screen, self.winner)
-                if button_rect and button_rect.collidepoint(event.pos):
-                    self.reset_game()
-                    self.show_start_screen = True
-            
-            elif not self.game_over and not self.show_start_screen and self.turno_jugador and event.type == pygame.KEYDOWN:
-                dx, dy = 0, 0
-                if event.key == pygame.K_w: dy = -1
-                elif event.key == pygame.K_s: dy = 1
-                elif event.key == pygame.K_a: dx = -1
-                elif event.key == pygame.K_d: dx = 1
+            if not self.game_over and not self.show_start_screen:
+                if event.type == pygame.KEYDOWN:
+                    dx, dy = 0, 0
+                    if event.key in (pygame.K_w, pygame.K_UP): dy = -1
+                    elif event.key in (pygame.K_s, pygame.K_DOWN): dy = 1
+                    elif event.key in (pygame.K_a, pygame.K_LEFT): dx = -1
+                    elif event.key in (pygame.K_d, pygame.K_RIGHT): dx = 1
+
+                    if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
+                        current_cell_value = self.grid[self.player.y][self.player.x]
+                        if current_cell_value <= 0:
+                            self.winner = "ai"
+                            self.game_over = True
+                            print(f"¡Jugador pierde! Celda ({self.player.x},{self.player.y}) = {current_cell_value}")
+                        else:
+                            self.turno_jugador = False
+                            self.esperando_ia = True
+                            self.last_move_time = pygame.time.get_ticks()
+
                 
-                if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
-                    if self.grid[self.player.y][self.player.x] < 0:
-                        self.winner = "ai"
-                        self.game_over = True
-                    else:
-                        self.turno_jugador = False
-                        self.esperando_ia = True
-                        self.last_move_time = pygame.time.get_ticks()
-        
-        return True
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    print("Reiniciando juego...")
+                    self.reset_game()
+
+        return True  
+
 
     def update(self):
         """Update game state"""
