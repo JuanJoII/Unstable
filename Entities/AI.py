@@ -11,7 +11,6 @@ class AI(pygame.sprite.Sprite):
         self.color = (255, 0, 0) 
         self.sprite_scale = CHARACTER_SCALE
         
-       
         self.original_sprites = self._load_sprites()
         self.sprites = self._scale_sprites(self.original_sprites)
         
@@ -23,7 +22,6 @@ class AI(pygame.sprite.Sprite):
         self.margin = 0
     
     def _load_sprites(self):
-        """Carga los sprites originales"""
         sprite_paths = [
             'Assets/Base Character/Frog/Enemyfrogidle_1.png',
             'Assets/Base Character/Frog/Enemyfrogidle_2.png',
@@ -44,7 +42,6 @@ class AI(pygame.sprite.Sprite):
         return loaded
     
     def _scale_sprites(self, sprites):
-        """Escala todos los sprites según el factor"""
         scaled = []
         for sprite in sprites:
             new_width = int(sprite.get_width() * self.sprite_scale)
@@ -53,7 +50,6 @@ class AI(pygame.sprite.Sprite):
         return scaled
     
     def set_scale(self, new_scale):
-        """Cambia el tamaño dinámicamente"""
         self.sprite_scale = new_scale
         self.sprites = self._scale_sprites(self.original_sprites)
         self.image = self.sprites[int(self.current_sprite)]
@@ -63,20 +59,36 @@ class AI(pygame.sprite.Sprite):
     def pos(self):
         return [self.x, self.y]
     
+    def move(self, dx, dy, grid, player_pos, grid_width, grid_height):
+        new_x, new_y = self.x + dx, self.y + dy
+        
+        if not (0 <= new_x < grid_width and 0 <= new_y < grid_height):
+            return False
+        if [new_x, new_y] == player_pos:
+            return False
+        
+        grid[self.y][self.x] -= 1
+        
+        self.x, self.y = new_x, new_y
+        
+        self.rect.center = (
+            self.x * self.tile_size + self.margin + self.tile_size//2, 
+            self.y * self.tile_size + self.margin + self.tile_size//2
+        )
+        
+        return True
+    
     def _is_terminal(self, grid, player_pos, grid_width, grid_height):
-        """Check if the game has reached a terminal state"""
         player_moves = get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height)
         ai_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
         return len(player_moves) == 0 or len(ai_moves) == 0
     
     def evaluate(self, grid, player_pos, grid_width, grid_height):
-        """Evaluate the current game state"""
         player_moves = len(get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height))
         ai_moves = len(get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height))
         return ai_moves - player_moves
 
     def alpha_beta(self, grid, player_pos, depth, alpha, beta, maximizing, grid_width, grid_height):
-        """Alpha-beta pruning algorithm for AI decision making"""
         if depth == 0 or self._is_terminal(grid, player_pos, grid_width, grid_height):
             return self.evaluate(grid, player_pos, grid_width, grid_height)
 
@@ -104,7 +116,6 @@ class AI(pygame.sprite.Sprite):
             return min_eval
 
     def make_move(self, grid, player_pos, grid_width, grid_height):
-        """Determine and execute the AI's best move"""
         best_value = float('-inf')
         best_move = None
         for move in get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height):
@@ -116,9 +127,10 @@ class AI(pygame.sprite.Sprite):
                 best_move = move
 
         if best_move:
-            self.x, self.y = best_move
-            grid[best_move[1]][best_move[0]] -= 1
-            return grid[best_move[1]][best_move[0]] < 0
+            dx = best_move[0] - self.x
+            dy = best_move[1] - self.y
+            success = self.move(dx, dy, grid, player_pos, grid_width, grid_height)
+            return success and grid[best_move[1]][best_move[0]] < 0
         return False
     
     def update(self):

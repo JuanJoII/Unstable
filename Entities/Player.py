@@ -2,14 +2,14 @@ import pygame
 from constantes import CHARACTER_SCALE
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):  # Añade parámetro de escala
+    def __init__(self, x, y): 
         super().__init__()
         self.x = x
         self.y = y
         self.color = (0, 0, 255)
-        self.sprite_scale = CHARACTER_SCALE   # Factor de escalado (1.0 = tamaño original)
+        self.sprite_scale = CHARACTER_SCALE   
         
-        # Carga y escala los sprites
+    
         self.original_sprites = self._load_sprites()
         self.sprites = self._scale_sprites(self.original_sprites)
         
@@ -17,11 +17,10 @@ class Player(pygame.sprite.Sprite):
         self.image = self.sprites[int(self.current_sprite)]
         self.rect = self.image.get_rect(center=(x, y))
         self.animation_speed = 0.15
-        self.tile_size = 0  # Se establecerá en draw()
+        self.tile_size = 0 
         self.margin = 0
     
     def _load_sprites(self):
-        """Carga los sprites originales"""
         sprite_paths = [
             'Assets/Base Character/Frog/frogidle_1.png',
             'Assets/Base Character/Frog/frogidle_2.png',
@@ -35,15 +34,13 @@ class Player(pygame.sprite.Sprite):
                 loaded.append(pygame.image.load(path).convert_alpha())
             except pygame.error as e:
                 print(f"Error cargando sprite {path}: {e}")
-                # Crea un placeholder si falla
                 placeholder = pygame.Surface((32, 32), pygame.SRCALPHA)
-                placeholder.fill((0, 0, 255, 128))  # Azul semitransparente
+                placeholder.fill((0, 0, 255, 128)) 
                 loaded.append(placeholder)
         
         return loaded
     
     def _scale_sprites(self, sprites):
-        """Escala todos los sprites según el factor"""
         scaled = []
         for sprite in sprites:
             new_width = int(sprite.get_width() * self.sprite_scale)
@@ -52,10 +49,9 @@ class Player(pygame.sprite.Sprite):
         return scaled
     
     def set_scale(self, new_scale):
-        """Cambia el tamaño dinámicamente"""
         self.sprite_scale = new_scale
         self.sprites = self._scale_sprites(self.original_sprites)
-        # Ajusta el rectángulo para mantener la posición
+
         self.image = self.sprites[int(self.current_sprite)]
         self.rect = self.image.get_rect(center=self.rect.center)
     

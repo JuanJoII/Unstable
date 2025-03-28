@@ -17,7 +17,6 @@ class Game:
         self.clock = pygame.time.Clock()
         self.game_screen = GameScreen()
         
-        # Game state
         self.show_start_screen = True
         self.game_over = False
         self.winner = None
@@ -26,16 +25,13 @@ class Game:
         self.IA_DELAY = 500
         self.last_move_time = 0
         
-        # Game objects
         self.grid = None
         self.player = None
         self.ai = None
         
-        # Initialize game
         self.reset_game()
 
     def reset_game(self):
-        """Reset all game state to initial values"""
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
         self.player = Player(0, 0)
         self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
@@ -45,7 +41,6 @@ class Game:
         self.winner = None
 
     def check_game_over(self):
-        """Check if the game has reached a terminal state"""
         player_moves = get_valid_moves(self.player.pos, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT)
         ai_moves = get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT)
         
@@ -57,7 +52,6 @@ class Game:
                 self.winner = "ai"
 
     def handle_events(self):
-        """Handle all pygame events including player movement and game states"""
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -70,7 +64,7 @@ class Game:
                     if start_button and start_button.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.reset_game()
-                return True  
+                 
 
            
             if self.game_over:
@@ -79,7 +73,7 @@ class Game:
                     if button_rect and button_rect.collidepoint(event.pos):
                         self.reset_game()
                         self.show_start_screen = True
-                return True 
+                
 
             
             if not self.game_over and not self.show_start_screen:
@@ -110,7 +104,6 @@ class Game:
 
 
     def update(self):
-        """Update game state"""
         current_time = pygame.time.get_ticks()
         
         if not self.game_over and not self.show_start_screen:
@@ -133,7 +126,6 @@ class Game:
             self.check_game_over()
 
     def render(self):
-        """Render the current game state"""
         if self.show_start_screen:
             draw_start_screen(self.screen)
         elif self.game_over:
@@ -142,7 +134,6 @@ class Game:
             self.game_screen.draw(self.screen, self.grid, self.player, self.ai)
 
     def run(self):
-        """Main game loop"""
         running = True
         while running:
             running = self.handle_events()

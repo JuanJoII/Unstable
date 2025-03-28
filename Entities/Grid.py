@@ -1,11 +1,11 @@
 import random
 
 def generate_random_grid(width, height):
-    """Generate a new random grid with values between 1 and 3"""
+
     return [[random.randint(1, 3) for _ in range(width)] for _ in range(height)]
 
 def get_valid_moves(pos, grid, other_pos, grid_width, grid_height):
-    """Get truly valid moves considering ALL game rules"""
+
     x, y = pos
     valid_moves = []
     
