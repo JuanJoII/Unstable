@@ -1,6 +1,6 @@
 # 🌀 Unstable  
 
-![Portada Unstable](images_md/Unstable_IMG.jpg)  
+![Portada Unstable](images_md/IMG_jueguito.png)  
 
 **Unstable** es un juego arcade por turnos inspirado en *BLOKI*. Se basa en plataformas que solo pueden tocarse un número limitado de veces antes de destruirse. Una vez que desaparecen, dejan un vacío en el que caer significará la derrota.  
 
@@ -14,4 +14,5 @@
 
 En *Unstable*, controlas al **sapito 🐸 verde** usando las teclas **WASD**. Para ganar, debes hacer que el **sapito 🐸 rojo** caiga al vacío y así convertirte en el **rey del pantano**. 👑  
 
-🏆 ¡Demuestra tu estrategia y conviértete en el último en pie!  
+🏆 ¡Demuestra tu estrategia y conviértete en el último en pie!
+  
