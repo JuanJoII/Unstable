@@ -72,12 +72,22 @@ class Game:
            
             if self.game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    button_rect = draw_end_screen(self.screen, self.winner)
-                    if button_rect and button_rect.collidepoint(event.pos):
+                    button_rects = draw_end_screen(self.screen, self.winner)
+
+                    if button_rects[0].collidepoint(event.pos):  # REINTENTAR
+                        self.reset_game()
+                        self.game_over = False  # volver al juego
+                        self.show_start_screen = False
+
+                    elif button_rects[1].collidepoint(event.pos):  # TIENDA
+                        print("Abrir tienda (no implementado aún)")  # Aquí podrías cambiar de estado
+
+                    elif button_rects[2].collidepoint(event.pos):  # MENÚ
                         self.reset_game()
                         self.show_start_screen = True
-                
+                        self.game_over = False  # importante salir del estado de game over
 
+                
             
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:

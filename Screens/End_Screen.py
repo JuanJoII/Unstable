@@ -4,7 +4,7 @@ from constantes import SCREEN_SIZE
 pygame.init()
 
 # Cargar recursos
-background_image = pygame.image.load("Assets/UI/FondoUI.png").convert()
+background_image = pygame.image.load("Assets/UI/FondoUI.png").convert_alpha()
 background_image = pygame.transform.scale(background_image, (SCREEN_SIZE, SCREEN_SIZE))
 
 # Botones
@@ -12,7 +12,7 @@ boton_reintentar_img = pygame.image.load("Assets/UI/ButtonGreen.png").convert_al
 boton_menu_img = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 boton_store_img = pygame.image.load("Assets/UI/ButtonStore2.png").convert_alpha()
 
-button_size = (160, 48)
+button_size = (200, 56)
 boton_reintentar_img = pygame.transform.scale(boton_reintentar_img, button_size)
 boton_menu_img = pygame.transform.scale(boton_menu_img, button_size)
 boton_store_img = pygame.transform.scale(boton_store_img, button_size)
@@ -28,6 +28,7 @@ def draw_text_with_shadow(surface, text, font, color, shadow_color, pos):
     surface.blit(rendered, pos)
 
 def draw_end_screen(screen, result):
+    screen.fill((0, 28, 42))
     screen.blit(background_image, (0, 0))
 
     # Texto de resultado
@@ -41,14 +42,15 @@ def draw_end_screen(screen, result):
     draw_text_with_shadow(screen, text, title_font, text_color, shadow_color, (title_x, title_y))
 
     # Botones en columna centrados
-    button_spacing = 25
-    total_height = 5 * button_size[1] + 2 * button_spacing
-    start_y = SCREEN_SIZE // 2 - total_height // 2 + 70 
+    button_spacing = 15
+    total_height = 2 * button_size[1] + 2 * button_spacing
+    start_y = SCREEN_SIZE // 2 - total_height // 2 + 40
 
     button_positions = [
         ("REINTENTAR", boton_reintentar_img, start_y),
-        ("MENÚ", boton_menu_img, start_y + button_size[1] + button_spacing),
-        ("TIENDA", boton_store_img, start_y + 2 * (button_size[1] + button_spacing))
+        ("TIENDA", boton_store_img, start_y + 2 * (button_size[1] + button_spacing)),
+        ("MENÚ", boton_menu_img, start_y + button_size[1] + button_spacing)
+        
     ]
 
     mouse_pos = pygame.mouse.get_pos()
