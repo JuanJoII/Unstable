@@ -57,14 +57,17 @@ class Game:
             if event.type == pygame.QUIT:
                 return False
 
-            
+
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_button = draw_start_screen(self.screen)
-                    if start_button and start_button.collidepoint(event.pos):
+                    start_button_rect, exit_button_rect = draw_start_screen(self.screen)
+                    if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.reset_game()
-                 
+                        self.game_screen = GameScreen()
+                    elif exit_button_rect.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
 
            
             if self.game_over:
