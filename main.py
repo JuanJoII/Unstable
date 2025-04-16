@@ -12,7 +12,7 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
-        pygame.display.set_caption("Arcade - Turno por Turno VISUAL")
+        pygame.display.set_caption("UNSTABLE")
         
         self.clock = pygame.time.Clock()
         self.game_screen = GameScreen()

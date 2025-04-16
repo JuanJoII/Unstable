@@ -33,7 +33,7 @@ def draw_end_screen(screen, result):
 
     # Texto de resultado
     text = "¡GANASTE!" if result == "player" else "PERDISTE..."
-    text_color = (0, 255, 0) if result == "player" else (255, 80, 80)
+    text_color = (61, 171, 85) if result == "player" else (232, 67, 76)
     shadow_color = (0, 0, 0)
 
     title_surface = title_font.render(text, True, text_color)
