@@ -78,22 +78,23 @@ class Game:
             
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:
-                    dx, dy = 0, 0
-                    if event.key in (pygame.K_w, pygame.K_UP): dy = -1
-                    elif event.key in (pygame.K_s, pygame.K_DOWN): dy = 1
-                    elif event.key in (pygame.K_a, pygame.K_LEFT): dx = -1
-                    elif event.key in (pygame.K_d, pygame.K_RIGHT): dx = 1
+                    if self.turno_jugador:
+                        dx, dy = 0, 0
+                        if event.key in (pygame.K_w, pygame.K_UP): dy = -1
+                        elif event.key in (pygame.K_s, pygame.K_DOWN): dy = 1
+                        elif event.key in (pygame.K_a, pygame.K_LEFT): dx = -1
+                        elif event.key in (pygame.K_d, pygame.K_RIGHT): dx = 1
 
-                    if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
-                        current_cell_value = self.grid[self.player.y][self.player.x]
-                        if current_cell_value <= 0:
-                            self.winner = "ai"
-                            self.game_over = True
-                            print(f"¡Jugador pierde! Celda ({self.player.x},{self.player.y}) = {current_cell_value}")
-                        else:
-                            self.turno_jugador = False
-                            self.esperando_ia = True
-                            self.last_move_time = pygame.time.get_ticks()
+                        if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
+                            current_cell_value = self.grid[self.player.y][self.player.x]
+                            if current_cell_value <= 0:
+                                self.winner = "ai"
+                                self.game_over = True
+                                print(f"¡Jugador pierde! Celda ({self.player.x},{self.player.y}) = {current_cell_value}")
+                            else:
+                                self.turno_jugador = False
+                                self.esperando_ia = True
+                                self.last_move_time = pygame.time.get_ticks()
 
                 
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
