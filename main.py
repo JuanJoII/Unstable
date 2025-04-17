@@ -12,7 +12,7 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
-        pygame.display.set_caption("Arcade - Turno por Turno VISUAL")
+        pygame.display.set_caption("UNSTABLE")
         
         self.clock = pygame.time.Clock()
         self.game_screen = GameScreen()
@@ -57,24 +57,37 @@ class Game:
             if event.type == pygame.QUIT:
                 return False
 
-            
+
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_button = draw_start_screen(self.screen)
-                    if start_button and start_button.collidepoint(event.pos):
+                    start_button_rect, exit_button_rect = draw_start_screen(self.screen)
+                    if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.reset_game()
-                 
+                        self.game_screen = GameScreen()
+                    elif exit_button_rect.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
 
            
             if self.game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    button_rect = draw_end_screen(self.screen, self.winner)
-                    if button_rect and button_rect.collidepoint(event.pos):
+                    button_rects = draw_end_screen(self.screen, self.winner)
+
+                    if button_rects[0].collidepoint(event.pos):  # REINTENTAR
+                        self.reset_game()
+                        self.game_over = False  # volver al juego
+                        self.show_start_screen = False
+
+                    elif button_rects[1].collidepoint(event.pos):  # TIENDA
+                        print("Abrir tienda (no implementado aún)")  # Aquí podrías cambiar de estado
+
+                    elif button_rects[2].collidepoint(event.pos):  # MENÚ
                         self.reset_game()
                         self.show_start_screen = True
-                
+                        self.game_over = False  # importante salir del estado de game over
 
+                
             
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:
