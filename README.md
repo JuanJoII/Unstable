@@ -1,6 +1,6 @@
 # 🌀 Unstable  
 
-![Portada Unstable](images_md/Unstable_Cover.jpg)  
+![Portada Unstable](images_md/IMG_jueguito.png)  
 
 **Unstable** es un juego arcade por turnos inspirado en *BLOKI*. Se basa en plataformas que solo pueden tocarse un número limitado de veces antes de destruirse. Una vez que desaparecen, dejan un vacío en el que caer significará la derrota.  
 
