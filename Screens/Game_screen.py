@@ -13,7 +13,7 @@ class GameScreen:
         image = pygame.image.load(path)
         return pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
     
-    def draw(self, screen, grid, player, ai):
+    def draw(self, screen, grid, player, ai, coins):
         screen.fill((0, 0, 0))
         for row in range(GRID_HEIGHT):
             for col in range(GRID_WIDTH):
@@ -24,4 +24,7 @@ class GameScreen:
         
         player.draw(screen, TILE_SIZE, MARGIN)
         ai.draw(screen, TILE_SIZE, MARGIN)
+        for coin in coins:
+            if not coin.collected:
+                coin.draw(screen, TILE_SIZE, MARGIN)
         pygame.display.flip()

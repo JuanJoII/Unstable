@@ -1,11 +1,13 @@
 import pygame
 import sys
+import random
 from constantes import TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, MARGIN, SCREEN_SIZE
 from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI import AI
+from Entities.Coin import Coin
 from Entities.Grid import generate_random_grid, get_valid_moves
 
 class Game:
@@ -24,12 +26,29 @@ class Game:
         self.esperando_ia = False
         self.IA_DELAY = 500
         self.last_move_time = 0
+        self.coins = pygame.sprite.Group()
+        self.coins_count = 0
         
         self.grid = None
         self.player = None
         self.ai = None
         
         self.reset_game()
+        
+    def generate_coins(self, num_coins):
+        positions_used = [[self.player.x, self.player.y], [self.ai.x, self.ai.y]]
+        
+        for _ in range(num_coins):
+            while True:
+
+                x = random.randint(0, GRID_WIDTH - 1)
+                y = random.randint(0, GRID_HEIGHT - 1)
+                
+                if [x, y] not in positions_used and self.grid[y][x] > 0:
+                    new_coin = Coin(x, y)
+                    self.coins.add(new_coin)
+                    positions_used.append([x, y])
+                    break
 
     def reset_game(self):
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
@@ -39,6 +58,8 @@ class Game:
         self.esperando_ia = False
         self.game_over = False
         self.winner = None
+        self.coins.empty()
+        self.generate_coins(5) 
 
     def check_game_over(self):
         player_moves = get_valid_moves(self.player.pos, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT)
@@ -99,6 +120,12 @@ class Game:
                         elif event.key in (pygame.K_d, pygame.K_RIGHT): dx = 1
 
                         if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
+                            for coin in list(self.coins):
+                                if not coin.collected and coin.check_collision(self.player.pos):
+                                    self.coins_count += 1
+                                    print('Moneda Recogida')
+                                    
+                        
                             current_cell_value = self.grid[self.player.y][self.player.x]
                             if current_cell_value <= 0:
                                 self.winner = "ai"
@@ -125,6 +152,12 @@ class Game:
             self.player.update()  
             if hasattr(self.ai, 'update'): 
                 self.ai.update()
+                
+            self.coins.update()
+            
+            all_collected = all(coin.collected for coin in self.coins)
+            if all_collected and len(self.coins) > 0:
+                self.generate_coins(3) 
             
             if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
                 if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
@@ -145,7 +178,7 @@ class Game:
         elif self.game_over:
             draw_end_screen(self.screen, self.winner)
         else:
-            self.game_screen.draw(self.screen, self.grid, self.player, self.ai)
+            self.game_screen.draw(self.screen, self.grid, self.player, self.ai, self.coins)
 
     def run(self):
         running = True
