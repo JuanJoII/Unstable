@@ -8,7 +8,7 @@ class AI(pygame.sprite.Sprite):
         super().__init__()
         self.x = x
         self.y = y
-        self.color = (255, 0, 0) 
+        self.color = (255, 0, 0)
         self.sprite_scale = CHARACTER_SCALE
         
         self.original_sprites = self._load_sprites()
@@ -18,9 +18,9 @@ class AI(pygame.sprite.Sprite):
         self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect(center=(x, y))
         self.animation_speed = 0.1
-        self.tile_size = 0  
+        self.tile_size = 0
         self.margin = 0
-    
+
     def _load_sprites(self):
         sprite_paths = [
             'Assets/Base Character/Frog/Enemyfrogidle_1.png',
@@ -28,7 +28,6 @@ class AI(pygame.sprite.Sprite):
             'Assets/Base Character/Frog/Enemyfrogidle_3.png',
             'Assets/Base Character/Frog/Enemyfrogidle_4.png'
         ]
-        
         loaded = []
         for path in sprite_paths:
             try:
@@ -36,18 +35,17 @@ class AI(pygame.sprite.Sprite):
             except pygame.error as e:
                 print(f"Error cargando sprite {path}: {e}")
                 placeholder = pygame.Surface((32, 32), pygame.SRCALPHA)
-                placeholder.fill((255, 0, 0, 128)) 
+                placeholder.fill((255, 0, 0, 128))
                 loaded.append(placeholder)
-        
         return loaded
-    
+
     def _scale_sprites(self, sprites):
-        scaled = []
-        for sprite in sprites:
-            new_width = int(sprite.get_width() * self.sprite_scale)
-            new_height = int(sprite.get_height() * self.sprite_scale)
-            scaled.append(pygame.transform.smoothscale(sprite, (new_width, new_height)))
-        return scaled
+        return [
+            pygame.transform.smoothscale(sprite, (
+                int(sprite.get_width() * self.sprite_scale),
+                int(sprite.get_height() * self.sprite_scale)
+            )) for sprite in sprites
+        ]
     
     def set_scale(self, new_scale):
         self.sprite_scale = new_scale
@@ -61,87 +59,73 @@ class AI(pygame.sprite.Sprite):
     
     def move(self, dx, dy, grid, player_pos, grid_width, grid_height):
         new_x, new_y = self.x + dx, self.y + dy
-        
         if not (0 <= new_x < grid_width and 0 <= new_y < grid_height):
             return False
         if [new_x, new_y] == player_pos:
             return False
-        
+
         grid[self.y][self.x] -= 1
-        
         self.x, self.y = new_x, new_y
-        
+
         self.rect.center = (
-            self.x * self.tile_size + self.margin + self.tile_size//2, 
-            self.y * self.tile_size + self.margin + self.tile_size//2
+            self.x * self.tile_size + self.margin + self.tile_size // 2,
+            self.y * self.tile_size + self.margin + self.tile_size // 2
         )
-        
         return True
-    
-    def _is_terminal(self, grid, player_pos, grid_width, grid_height):
+
+    def _infer_best_move(self, grid, player_pos, grid_width, grid_height):
+        """Motor de inferencia lógico simple para tomar decisiones."""
+        my_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
         player_moves = get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height)
-        ai_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
-        return len(player_moves) == 0 or len(ai_moves) == 0
-    
-    def evaluate(self, grid, player_pos, grid_width, grid_height):
-        player_moves = len(get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height))
-        ai_moves = len(get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height))
-        return ai_moves - player_moves
+        
+        # Reglas básicas: [(condición, acción)]
+        rules = []
 
-    def alpha_beta(self, grid, player_pos, depth, alpha, beta, maximizing, grid_width, grid_height):
-        if depth == 0 or self._is_terminal(grid, player_pos, grid_width, grid_height):
-            return self.evaluate(grid, player_pos, grid_width, grid_height)
+        # Regla 1: si el jugador está acorralado, intentar acercarse
+        if len(player_moves) <= 1:
+            def closer(move):
+                return abs(move[0] - player_pos[0]) + abs(move[1] - player_pos[1])
+            rules.append(("acorralar", sorted(my_moves, key=closer)))
 
-        if maximizing:
-            max_eval = -float('inf')
-            for move in get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height):
-                new_grid = [row[:] for row in grid]
-                new_grid[move[1]][move[0]] -= 1
-                eval = self.alpha_beta(new_grid, player_pos, depth - 1, alpha, beta, False, grid_width, grid_height)
-                max_eval = max(max_eval, eval)
-                alpha = max(alpha, eval)
-                if beta <= alpha:
-                    break
-            return max_eval
+        # Regla 2: si el AI está acorralado, buscar más espacio
+        elif len(my_moves) <= 1:
+            def freedom(move):
+                return len(get_valid_moves(move, grid, player_pos, grid_width, grid_height))
+            rules.append(("huir", sorted(my_moves, key=freedom, reverse=True)))
+
+        # Regla 3: si hay espacios con más libertad, ve hacia allá
         else:
-            min_eval = float('inf')
-            for move in get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height):
-                new_grid = [row[:] for row in grid]
-                new_grid[move[1]][move[0]] -= 1
-                eval = self.alpha_beta(new_grid, move, depth - 1, alpha, beta, True, grid_width, grid_height)
-                min_eval = min(min_eval, eval)
-                beta = min(beta, eval)
-                if beta <= alpha:
-                    break
-            return min_eval
+            def zone_liberty(move):
+                return len(get_valid_moves(move, grid, player_pos, grid_width, grid_height))
+            rules.append(("zona_libre", sorted(my_moves, key=zone_liberty, reverse=True)))
+
+        # Ejecuta la primera regla aplicable
+        for label, options in rules:
+            if options:
+                return options[0]  # Tomamos la mejor opción sugerida
+
+        return None  # Si no hay movimientos válidos
 
     def make_move(self, grid, player_pos, grid_width, grid_height):
-        best_value = float('-inf')
-        best_move = None
-        for move in get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height):
-            temp_grid = copy.deepcopy(grid)
-            temp_grid[move[1]][move[0]] -= 1
-            value = self.alpha_beta(temp_grid, player_pos, 3, -float('inf'), float('inf'), False, grid_width, grid_height)
-            if value > best_value:
-                best_value = value
-                best_move = move
-
+        best_move = self._infer_best_move(grid, player_pos, grid_width, grid_height)
         if best_move:
             dx = best_move[0] - self.x
             dy = best_move[1] - self.y
             success = self.move(dx, dy, grid, player_pos, grid_width, grid_height)
             return success and grid[best_move[1]][best_move[0]] < 0
         return False
-    
+
     def update(self):
         self.current_sprite += self.animation_speed
         if self.current_sprite >= len(self.sprites):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)]
-        
+
     def draw(self, screen, tile_size, margin):
         self.tile_size = tile_size
         self.margin = margin
-        self.rect.center = (self.x * tile_size + margin + tile_size//2, 
-                           self.y * tile_size + margin + tile_size//2)
+        self.rect.center = (
+            self.x * tile_size + margin + tile_size // 2,
+            self.y * tile_size + margin + tile_size // 2
+        )
         screen.blit(self.image, self.rect)
