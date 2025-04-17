@@ -77,34 +77,58 @@ class AI(pygame.sprite.Sprite):
         """Motor de inferencia lógico simple para tomar decisiones."""
         my_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
         player_moves = get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height)
-        
+
+        step_count=0
+        print(f"Paso {step_count}:")
+        print(f"Agente en {self.pos}")
+        print(f"Jugador en {player_pos}")
+        print(f"Movimientos válidos del agente: {my_moves}")
+        print(f"Movimientos válidos del jugador: {player_moves}")
+
         # Reglas básicas: [(condición, acción)]
         rules = []
 
         # Regla 1: si el jugador está acorralado, intentar acercarse
         if len(player_moves) <= 1:
+            print("Consulta: ¿El jugador está acorralado?")
+            print(f"Resultado: True (tiene {len(player_moves)} movimiento(s))")
             def closer(move):
                 return abs(move[0] - player_pos[0]) + abs(move[1] - player_pos[1])
-            rules.append(("acorralar", sorted(my_moves, key=closer)))
+            best = sorted(my_moves, key=closer)
+            rules.append(("acorralar", best))
+            print(f"Acción: Aplicando regla 'acorralar', posibles movimientos ordenados: {best}")
 
         # Regla 2: si el AI está acorralado, buscar más espacio
         elif len(my_moves) <= 1:
+            print("Consulta: ¿El agente está acorralado?")
+            print(f"Resultado: True (tiene {len(my_moves)} movimiento(s))")
             def freedom(move):
                 return len(get_valid_moves(move, grid, player_pos, grid_width, grid_height))
-            rules.append(("huir", sorted(my_moves, key=freedom, reverse=True)))
+            best = sorted(my_moves, key=freedom, reverse=True)
+            rules.append(("huir", best))
+            print(f"Acción: Aplicando regla 'huir', posibles movimientos ordenados: {best}")
 
         # Regla 3: si hay espacios con más libertad, ve hacia allá
         else:
+            print("Consulta: ¿Existen zonas con más libertad de movimiento?")
+            print(f"Resultado: True")
             def zone_liberty(move):
                 return len(get_valid_moves(move, grid, player_pos, grid_width, grid_height))
-            rules.append(("zona_libre", sorted(my_moves, key=zone_liberty, reverse=True)))
+            best = sorted(my_moves, key=zone_liberty, reverse=True)
+            rules.append(("zona_libre", best))
+            print(f"Acción: Aplicando regla 'zona_libre', posibles movimientos ordenados: {best}")
 
         # Ejecuta la primera regla aplicable
         for label, options in rules:
             if options:
-                return options[0]  # Tomamos la mejor opción sugerida
+                print(f"Movimiento elegido: {options[0]}")
+                print("=" * 40)
+                return options[0]
 
-        return None  # Si no hay movimientos válidos
+        print("No hay movimientos válidos.")
+        print("=" * 40)
+        step_count+=1
+        return None
 
     def make_move(self, grid, player_pos, grid_width, grid_height):
         best_move = self._infer_best_move(grid, player_pos, grid_width, grid_height)
