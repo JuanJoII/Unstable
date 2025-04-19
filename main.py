@@ -8,7 +8,7 @@ from Entities.Player import Player
 from Entities.AI import AI
 from Entities.Grid import generate_random_grid, get_valid_moves
 
-class Game:
+class Game:    
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
@@ -24,6 +24,8 @@ class Game:
         self.esperando_ia = False
         self.IA_DELAY = 500
         self.last_move_time = 0
+        #contador pasos
+        self.count=0
         
         self.grid = None
         self.player = None
@@ -106,7 +108,6 @@ class Game:
 
     def update(self):
         current_time = pygame.time.get_ticks()
-        
         if not self.game_over and not self.show_start_screen:
             
             self.player.update()  
@@ -114,8 +115,9 @@ class Game:
                 self.ai.update()
             
             if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
+                self.count+=1
                 if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT,self.count):
                         self.winner = "player"
                         self.game_over = True
                 else:
