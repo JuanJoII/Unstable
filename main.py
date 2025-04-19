@@ -7,7 +7,7 @@ from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
-from Entities.AI import AI
+from Entities.AI_MinMax import AI
 from Entities.Coin import Coin
 from Entities.Grid import generate_random_grid, get_valid_moves
 
