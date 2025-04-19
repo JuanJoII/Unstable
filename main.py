@@ -24,6 +24,7 @@ class Game:
         self.esperando_ia = False
         self.IA_DELAY = 500
         self.last_move_time = 0
+        #contador pasos
         self.count=0
         
         self.grid = None
