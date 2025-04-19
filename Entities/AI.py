@@ -10,6 +10,7 @@ class AI(pygame.sprite.Sprite):
         self.y = y
         self.color = (255, 0, 0)
         self.sprite_scale = CHARACTER_SCALE
+        self.step_count = 0
         
         self.original_sprites = self._load_sprites()
         self.sprites = self._scale_sprites(self.original_sprites)
@@ -78,8 +79,8 @@ class AI(pygame.sprite.Sprite):
         my_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
         player_moves = get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height)
 
-        step_count=0
-        print(f"Paso {step_count}:")
+        self.step_count += 1
+        print(f"Paso {self.step_count}:")
         print(f"Agente en {self.pos}")
         print(f"Jugador en {player_pos}")
         print(f"Movimientos válidos del agente: {my_moves}")
