@@ -74,12 +74,13 @@ class AI(pygame.sprite.Sprite):
         )
         return True
 
-    def _infer_best_move(self, grid, player_pos, grid_width, grid_height, step_count):
+    def _infer_best_move(self, grid, player_pos, grid_width, grid_height):
         """Motor de inferencia lógico simple para tomar decisiones."""
         my_moves = get_valid_moves(self.pos, grid, player_pos, grid_width, grid_height)
         player_moves = get_valid_moves(player_pos, grid, self.pos, grid_width, grid_height)
 
-        print(f"Paso {step_count}:")
+        self.step_count += 1
+        print(f"Paso {self.step_count}:")
         print(f"Agente en {self.pos}")
         print(f"Jugador en {player_pos}")
         print(f"Movimientos válidos del agente: {my_moves}")
@@ -127,10 +128,11 @@ class AI(pygame.sprite.Sprite):
 
         print("No hay movimientos válidos.")
         print("=" * 40)
+        step_count+=1
         return None
 
-    def make_move(self, grid, player_pos, grid_width, grid_height,step_count):
-        best_move = self._infer_best_move(grid, player_pos, grid_width, grid_height, step_count)
+    def make_move(self, grid, player_pos, grid_width, grid_height):
+        best_move = self._infer_best_move(grid, player_pos, grid_width, grid_height)
         if best_move:
             dx = best_move[0] - self.x
             dy = best_move[1] - self.y
