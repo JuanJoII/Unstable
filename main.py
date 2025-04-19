@@ -5,7 +5,7 @@ from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
-from Entities.AI import AI
+from Entities.AIProposicional import AI
 from Entities.Grid import generate_random_grid, get_valid_moves
 
 class Game:
