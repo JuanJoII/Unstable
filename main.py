@@ -31,7 +31,7 @@ class Game:
         self.coins_count = 0
 
         self.show_store = False
-        self.monedas = self.coins_count
+        # self.monedas = self.coins_count
         self.sombrero_actual = None
         self.sombreros_comprados = []
         self.shop_button_rects = []
@@ -114,7 +114,7 @@ class Game:
 
                     elif button_rects[1].collidepoint(event.pos):  # TIENDA
                         self.scroll_offset = 0
-                        self.monedas = self.coins_count
+                        # self.monedas = self.coins_count
                         self.show_store = True
                         self.game_over = False
 
@@ -138,8 +138,8 @@ class Game:
                             if rect.collidepoint(event.pos):
                                 if hat["nombre"] in self.sombreros_comprados:
                                     self.sombrero_actual = hat["nombre"]
-                                elif self.monedas >= hat["precio"]:
-                                    self.monedas -= hat["precio"]
+                                elif self.coins_count >= hat["precio"]:
+                                    self.coins_count -= hat["precio"]
                                     self.sombreros_comprados.append(hat["nombre"])
                                     self.sombrero_actual = hat["nombre"]
 
@@ -177,6 +177,7 @@ class Game:
                             current_cell_value = self.grid[self.player.y][self.player.x]
                             if current_cell_value <= 0:
                                 self.winner = "ai"
+                                self.coins_count = 0
                                 self.game_over = True
                                 print(f"¡Jugador pierde! Celda ({self.player.x},{self.player.y}) = {current_cell_value}")
                             else:
@@ -214,7 +215,7 @@ class Game:
             
             if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
                 if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
                         self.winner = "player"
                         self.game_over = True
                 else:
@@ -231,7 +232,7 @@ class Game:
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,
-                self.monedas,
+                self.coins_count,
                 self.sombrero_actual,
                 self.sombreros_comprados,
                 self.scroll_offset
