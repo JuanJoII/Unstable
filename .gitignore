@@ -29,4 +29,8 @@ ENV/
 .vscode/
 *.swp
 *.swo
+<<<<<<< HEAD
 *~
+=======
+*~
+>>>>>>> Tiendita
