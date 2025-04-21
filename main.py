@@ -9,6 +9,7 @@ from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
 from Entities.AI_Prop import AI as AIProp
+from Entities.FuzzyIA import FuzzyAI
 from Entities.Coin import Coin
 from Entities.Grid import generate_random_grid, get_valid_moves
 
@@ -68,8 +69,9 @@ class Game:
     def reset_game(self):
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
         self.player = Player(0, 0)
-        #self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
-        self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        # self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        # self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        self.ai = FuzzyAI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         self.turno_jugador = True
         self.esperando_ia = False
         self.game_over = False
@@ -217,12 +219,26 @@ class Game:
             if all_collected and len(self.coins) > 0:
                 self.generate_coins(3) 
             
+            # if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
+            #     if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+            #         #if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
+            #         if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+            #             self.winner = "player"
+            #             self.game_over = True
+            #     else:
+            #         self.winner = "player"
+            #         self.game_over = True
+            #     self.esperando_ia = False
+            #     self.turno_jugador = True
+            
             if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
                 if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-                    #if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
-                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-                        self.winner = "player"
-                        self.game_over = True
+                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
+                        # Check if AI fell on an unstable cell
+                        current_cell_value = self.grid[self.ai.y][self.ai.x]
+                        if current_cell_value <= 0:
+                            self.winner = "player"
+                            self.game_over = True
                 else:
                     self.winner = "player"
                     self.game_over = True
