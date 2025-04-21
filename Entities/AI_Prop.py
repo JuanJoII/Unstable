@@ -131,14 +131,27 @@ class AI(pygame.sprite.Sprite):
         step_count+=1
         return None
 
-    def make_move(self, grid, player_pos, grid_width, grid_height):
+    def make_move(self, grid, player_pos, grid_width, grid_height, coins_group=None):
         best_move = self._infer_best_move(grid, player_pos, grid_width, grid_height)
         if best_move:
             dx = best_move[0] - self.x
             dy = best_move[1] - self.y
             success = self.move(dx, dy, grid, player_pos, grid_width, grid_height)
-            return success and grid[best_move[1]][best_move[0]] < 0
-        return False
+            
+            # Verificar si se recogió una moneda
+            collected_coin = False
+            if coins_group is not None:
+                for coin in coins_group:
+                    if not coin.collected and coin.x == best_move[0] and coin.y == best_move[1]:
+                        coin.collected = True
+                        collected_coin = True
+                        break
+            
+            # Verificar si cayó en una celda inestable
+            unstable_cell = grid[best_move[1]][best_move[0]] <= 0
+            
+            return success, collected_coin, unstable_cell
+        return False, False, False
 
     def update(self):
         self.current_sprite += self.animation_speed

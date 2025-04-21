@@ -13,7 +13,8 @@ from Entities.FuzzyIA import FuzzyAI
 from Entities.Coin import Coin
 from Entities.Grid import generate_random_grid, get_valid_moves
 
-# Para usar la IA de logica proposicional, comentar la IA de min max en la función reset_game y comentar el metodo de la clase AI llamado make_move usado en función update
+# Para usar la IA que se desee evaluar escribir en la variable ia_a_usar alguna de las siguientes cadenas de texto: Fuzzy (para logica difusa), MinMax (algoritmo minmax), Prop (para logica proposicional)
+ia_a_usar = 'Prop'
 
 class Game:
     def __init__(self):
@@ -69,9 +70,12 @@ class Game:
     def reset_game(self):
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
         self.player = Player(0, 0)
-        # self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
-        # self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
-        self.ai = FuzzyAI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        if ia_a_usar == 'MinMax':
+            self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        elif ia_a_usar == 'Prop':
+            self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+        elif ia_a_usar == 'Fuzzy':
+            self.ai = FuzzyAI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         self.turno_jugador = True
         self.esperando_ia = False
         self.game_over = False
@@ -218,32 +222,58 @@ class Game:
             all_collected = all(coin.collected for coin in self.coins)
             if all_collected and len(self.coins) > 0:
                 self.generate_coins(3) 
+                
+            if ia_a_usar == 'MinMax':
+                if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
+                    if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+                        if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
+                            self.winner = "player"
+                            self.game_over = True
+                    else:
+                        self.winner = "player"
+                        self.game_over = True
+                    self.esperando_ia = False
+                    self.turno_jugador = True
             
-            # if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
-            #     if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-            #         #if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
-            #         if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-            #             self.winner = "player"
-            #             self.game_over = True
-            #     else:
-            #         self.winner = "player"
-            #         self.game_over = True
-            #     self.esperando_ia = False
-            #     self.turno_jugador = True
+            elif ia_a_usar == 'Fuzzy':
+                if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
+                    if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
+                        if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
+                            current_cell_value = self.grid[self.ai.y][self.ai.x]
+                            if current_cell_value <= 0:
+                                self.winner = "player"
+                                self.game_over = True
+                    else:
+                        self.winner = "player"
+                        self.game_over = True
+                    self.esperando_ia = False
+                    self.turno_jugador = True
             
-            if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
-                if get_valid_moves(self.ai.pos, self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT):
-                    if self.ai.make_move(self.grid, self.player.pos, GRID_WIDTH, GRID_HEIGHT, self.coins):
-                        # Check if AI fell on an unstable cell
+            elif ia_a_usar == 'Prop':
+                if self.esperando_ia and current_time - self.last_move_time > self.IA_DELAY:
+                    
+                    success, collected_coin, unstable_cell = self.ai.make_move(
+                        self.grid, 
+                        self.player.pos, 
+                        GRID_WIDTH, 
+                        GRID_HEIGHT, 
+                        self.coins
+                    )
+                    
+                    if collected_coin:
+                        print("IA recogió una moneda")
+                    
+                    if not success or unstable_cell:
+                        self.winner = "player"
+                        self.game_over = True
+                    elif success:
                         current_cell_value = self.grid[self.ai.y][self.ai.x]
                         if current_cell_value <= 0:
                             self.winner = "player"
                             self.game_over = True
-                else:
-                    self.winner = "player"
-                    self.game_over = True
-                self.esperando_ia = False
-                self.turno_jugador = True
+                    
+                    self.esperando_ia = False
+                    self.turno_jugador = True
             
             self.check_game_over()
 
