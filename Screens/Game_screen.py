@@ -13,7 +13,7 @@ class GameScreen:
         image = pygame.image.load(path)
         return pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
     
-    def draw(self, screen, grid, player, ai, coins, coins_count):
+    def draw(self, screen, grid, player, ai, coins, coins_count, score):
         screen.fill((0, 0, 0))
         for row in range(GRID_HEIGHT):
             for col in range(GRID_WIDTH):
@@ -22,10 +22,14 @@ class GameScreen:
                     y = row * TILE_SIZE + MARGIN
                     screen.blit(self.tile_images[grid[row][col]], (x, y))
         
-        # Dibujar el contador de monedas
         font = pygame.font.SysFont("Arial", 24)
-        text = font.render(f"Monedas: {coins_count}", True, (255, 255, 0))
-        screen.blit(text, (10, 10))
+        coins_text = font.render(f"Monedas: {coins_count}", True, (255, 255, 0))
+        screen.blit(coins_text, (10, 10))
+        
+        score_text = font.render(f"Score: {score}", True, (255, 255, 0))
+        score_text_width = score_text.get_width()
+        screen_width = SCREEN_SIZE
+        screen.blit(score_text, (screen_width - score_text_width - 10, 10)) 
         
         player.draw(screen, TILE_SIZE, MARGIN)
         ai.draw(screen, TILE_SIZE, MARGIN)

@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from constantes import TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, MARGIN, SCREEN_SIZE
+from save_score import save_score
 from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
@@ -14,7 +15,7 @@ from Entities.Coin import Coin
 from Entities.Grid import generate_random_grid, get_valid_moves
 
 # Para usar la IA que se desee evaluar escribir en la variable ia_a_usar alguna de las siguientes cadenas de texto: Fuzzy (para logica difusa), MinMax (algoritmo minmax), Prop (para logica proposicional)
-ia_a_usar = 'Prop'
+ia_a_usar = 'MinMax'
 
 class Game:
     def __init__(self):
@@ -34,6 +35,7 @@ class Game:
         self.last_move_time = 0
         self.coins = pygame.sprite.Group()
         self.coins_count = 0
+        self.score = 0
 
         self.show_store = False
         # self.monedas = self.coins_count
@@ -81,6 +83,7 @@ class Game:
         self.game_over = False
         self.winner = None
         self.coins.empty()
+        self.score = 0
         self.generate_coins(5) 
 
     def check_game_over(self):
@@ -96,10 +99,8 @@ class Game:
 
     def handle_events(self):
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 return False
-
 
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -112,27 +113,30 @@ class Game:
                         pygame.quit()
                         sys.exit()
 
-           
             if self.game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     button_rects = draw_end_screen(self.screen, self.winner)
-
-                    if button_rects[0].collidepoint(event.pos):  # REINTENTAR
+                    
+                    if button_rects[0].collidepoint(event.pos):
                         self.reset_game()
-                        self.game_over = False  # volver al juego
+                        self.game_over = False
                         self.show_start_screen = False
 
-                    elif button_rects[1].collidepoint(event.pos):  # TIENDA
+                    elif button_rects[1].collidepoint(event.pos):  # GUARDAR
+                        save_score(self.score, self.screen)
+                        print("Partida guardada.")
+                        # print("Guardando partida...")
+                        # Aquí iría la lógica para guardar el juego
+                        
+                    elif button_rects[2].collidepoint(event.pos):  # TIENDA
                         self.scroll_offset = 0
-                        # self.monedas = self.coins_count
                         self.show_store = True
                         self.game_over = False
 
-
-                    elif button_rects[2].collidepoint(event.pos):  # MENÚ
+                    elif button_rects[3].collidepoint(event.pos):  # MENÚ
                         self.reset_game()
                         self.show_start_screen = True
-                        self.game_over = False  # importante salir del estado de game over
+                        self.game_over = False
 
             if self.show_store:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -165,9 +169,6 @@ class Game:
                             self.reset_game()
                             self.game_screen = GameScreen()
 
-
-
-            
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:
                     if self.turno_jugador:
@@ -178,24 +179,23 @@ class Game:
                         elif event.key in (pygame.K_d, pygame.K_RIGHT): dx = 1
 
                         if self.player.move(dx, dy, self.grid, self.ai.pos, GRID_WIDTH, GRID_HEIGHT):
+                            self.score += 1
                             for coin in list(self.coins):
                                 if not coin.collected and coin.check_collision(self.player.pos):
                                     self.coins_count += 1
+                                    self.score += 10
                                     print('Moneda Recogida')
-                                    
-                        
+                            
                             current_cell_value = self.grid[self.player.y][self.player.x]
                             if current_cell_value <= 0:
                                 self.winner = "ai"
                                 self.coins_count = 0
                                 self.game_over = True
-                                # print(f"¡Jugador pierde! Celda ({self.player.x},{self.player.y}) = {current_cell_value}")
                             else:
                                 self.turno_jugador = False
                                 self.esperando_ia = True
                                 self.last_move_time = pygame.time.get_ticks()
 
-                
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                     print("Reiniciando juego...")
                     self.reset_game()
@@ -204,9 +204,7 @@ class Game:
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.show_store = False
 
-
-        return True  
-
+        return True
 
     def update(self):
         current_time = pygame.time.get_ticks()
@@ -291,7 +289,7 @@ class Game:
         elif self.game_over:
             draw_end_screen(self.screen, self.winner)
         else:
-            self.game_screen.draw(self.screen, self.grid, self.player, self.ai, self.coins, self.coins_count)
+            self.game_screen.draw(self.screen, self.grid, self.player, self.ai, self.coins, self.coins_count, self.score)
 
 
     def run(self):

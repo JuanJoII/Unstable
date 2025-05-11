@@ -43,14 +43,15 @@ def draw_end_screen(screen, result):
 
     # Botones en columna centrados
     button_spacing = 15
-    total_height = 2 * button_size[1] + 2 * button_spacing
+    total_height = 3 * button_size[1] + 3 * button_spacing  # Aumentamos a 3 botones
     start_y = SCREEN_SIZE // 2 - total_height // 2 + 40
 
+    # Añadimos el botón GUARDAR (usaremos boton_store_img como placeholder por ahora)
     button_positions = [
         ("REINTENTAR", boton_reintentar_img, start_y),
+        ("GUARDAR", boton_store_img, start_y + button_size[1] + button_spacing),  # Nuevo botón
         ("TIENDA", boton_store_img, start_y + 2 * (button_size[1] + button_spacing)),
-        ("MENÚ", boton_menu_img, start_y + button_size[1] + button_spacing)
-        
+        ("MENÚ", boton_menu_img, start_y + 3 * (button_size[1] + button_spacing))
     ]
 
     mouse_pos = pygame.mouse.get_pos()
