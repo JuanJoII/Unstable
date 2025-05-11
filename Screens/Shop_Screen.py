@@ -32,6 +32,35 @@ for hat in hats:
     hat["img_obj"] = pygame.transform.scale(img, (64, 64))
 
 
+def get_current_hat(sombrero_actual, sombreros_comprados, hats_list=None):
+    """
+    Retorna el sombrero actual equipado.
+    
+    Args:
+        sombrero_actual (str): Nombre del sombrero actualmente equipado
+        sombreros_comprados (list): Lista de nombres de sombreros que ha comprado el jugador
+        hats_list (list, optional): Lista de sombreros disponibles. Si es None, usa la lista global.
+    
+    Returns:
+        dict: Diccionario con la información del sombrero actual, o None si no hay ninguno equipado
+    """
+    # Si no hay un sombrero seleccionado o el sombrero no está en la lista de comprados
+    if not sombrero_actual or sombrero_actual not in sombreros_comprados:
+        return None
+    
+    # Usar la lista de sombreros proporcionada o la global
+    if hats_list is None:
+        hats_list = hats
+    
+    # Buscar el sombrero en la lista de sombreros disponibles
+    for hat in hats_list:
+        if hat["nombre"] == sombrero_actual:
+            return hat
+    
+    # Si no se encuentra el sombrero (no debería ocurrir si los datos son consistentes)
+    return None
+
+
 def draw_text_with_shadow(surface, text, font, color, shadow_color, pos):
     shadow_pos = (pos[0] + 2, pos[1] + 2)
     shadow = font.render(text, True, shadow_color)
@@ -67,6 +96,13 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
 
     # === MONEDAS ===
     draw_text_with_shadow(screen, f"MONEDAS: {monedas}", button_font, texto_monedas, texto_sombra, (30, 60))
+    
+    # === SOMBRERO ACTUAL ===
+    current_hat = get_current_hat(sombrero_actual, sombreros_comprados)
+    if current_hat:
+        draw_text_with_shadow(screen, f"EQUIPADO: {current_hat['nombre']}", button_font, 
+                             (0, 255, 100), texto_sombra, (SCREEN_SIZE // 2 + 30, 60))
+        screen.blit(current_hat["img_obj"], (SCREEN_SIZE // 2 + 220, 45))
 
     # === ÁREA SCROLL PARA SOMBREROS ===
     sombrero_area_rect = pygame.Rect(30, 100, SCREEN_SIZE - 60, SCREEN_SIZE - 180)
@@ -141,15 +177,17 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
     return button_rects, menu_rect, jugar_rect
 
 
-
-def handle_shop_click(mouse_pos, button_rects, sombreros_comprados, monedas):
+def handle_shop_click(mouse_pos, button_rects, sombreros_comprados, monedas, sombrero_actual):
     for rect, hat in button_rects:
         if rect.collidepoint(mouse_pos):
             if hat["nombre"] not in sombreros_comprados and monedas >= hat["precio"]:
+                # Comprar sombrero nuevo
                 sombreros_comprados.append(hat["nombre"])
                 monedas -= hat["precio"]
-            else:
-                # Cambiar el sombrero equipado
                 sombrero_actual = hat["nombre"]
-            return sombreros_comprados, monedas
-    return sombreros_comprados, monedas
+                print(f"Comprando y equipando: {sombrero_actual}")
+            elif hat["nombre"] in sombreros_comprados:
+                sombrero_actual = hat["nombre"]
+                print(f"Equipando sombrero: {sombrero_actual}")
+            return sombrero_actual, sombreros_comprados, monedas
+    return sombrero_actual, sombreros_comprados, monedas

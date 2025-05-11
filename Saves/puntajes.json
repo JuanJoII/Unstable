@@ -1,5 +1,9 @@
 [
     {
+        "nombre": "aaa",
+        "puntaje": 93
+    },
+    {
         "nombre": "Arnold",
         "puntaje": 55
     },

@@ -2,14 +2,19 @@ import pygame
 from constantes import CHARACTER_SCALE
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y): 
+    def __init__(self, x, y, sombrero_actual=None): 
         super().__init__()
         self.x = x
         self.y = y
         self.color = (0, 0, 255)
-        self.sprite_scale = CHARACTER_SCALE   
+        self.sprite_scale = CHARACTER_SCALE 
+        self.hat_scale = 0.15
         
-    
+        # Atributos para el sombrero
+        self.sombrero_actual = sombrero_actual
+        self.hat_img = None
+        self.hat_offset = (0, -15)  # Ajuste de posición del sombrero
+        
         self.original_sprites = self._load_sprites()
         self.sprites = self._scale_sprites(self.original_sprites)
         
@@ -19,6 +24,49 @@ class Player(pygame.sprite.Sprite):
         self.animation_speed = 0.15
         self.tile_size = 0 
         self.margin = 0
+        
+        # Cargar el sombrero si hay uno equipado
+        if self.sombrero_actual:
+            self.cargar_sombrero(self.sombrero_actual)
+    
+    def cargar_sombrero(self, nombre_sombrero):
+        """Carga la imagen del sombrero basado en el nombre"""
+        # Lista de sombreros disponibles (debería coincidir con la de la tienda)
+        hats = [
+            {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png"},
+            {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png"},
+            {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png"},
+        ]
+        
+        # Buscar el sombrero en la lista
+        for hat in hats:
+            if hat["nombre"] == nombre_sombrero:
+                try:
+                    self.hat_img = pygame.image.load(hat["imagen"]).convert_alpha()
+                    # Escalar el sombrero proporcionalmente al tamaño del personaje
+                    new_width = int(self.hat_img.get_width() * self.hat_scale)
+                    new_height = int(self.hat_img.get_height() * self.hat_scale)
+                    self.hat_img = pygame.transform.smoothscale(self.hat_img, (new_width, new_height))
+                    self.sombrero_actual = nombre_sombrero
+                    return True
+                except pygame.error as e:
+                    print(f"Error cargando sombrero {hat['imagen']}: {e}")
+                    self.hat_img = None
+                    return False
+        
+        # Si no se encuentra el sombrero
+        self.hat_img = None
+        return False
+    
+    def equipar_sombrero(self, nombre_sombrero):
+        """Equipa un nuevo sombrero"""
+        self.sombrero_actual = nombre_sombrero
+        self.cargar_sombrero(nombre_sombrero)
+    
+    def quitar_sombrero(self):
+        """Quita el sombrero actual"""
+        self.sombrero_actual = None
+        self.hat_img = None
     
     def _load_sprites(self):
         sprite_paths = [
@@ -51,9 +99,12 @@ class Player(pygame.sprite.Sprite):
     def set_scale(self, new_scale):
         self.sprite_scale = new_scale
         self.sprites = self._scale_sprites(self.original_sprites)
-
         self.image = self.sprites[int(self.current_sprite)]
         self.rect = self.image.get_rect(center=self.rect.center)
+        
+        # Re-escalar el sombrero si hay uno equipado
+        if self.sombrero_actual:
+            self.cargar_sombrero(self.sombrero_actual)
     
     @property
     def pos(self):
@@ -71,7 +122,6 @@ class Player(pygame.sprite.Sprite):
         
         self.x, self.y = new_x, new_y
         
-
         self.rect.center = (
             self.x * self.tile_size + self.margin + self.tile_size//2, 
             self.y * self.tile_size + self.margin + self.tile_size//2
@@ -90,4 +140,14 @@ class Player(pygame.sprite.Sprite):
         self.margin = margin
         self.rect.center = (self.x * tile_size + margin + tile_size//2,
                            self.y * tile_size + margin + tile_size//2)
+        
+        # Dibujar al personaje
         screen.blit(self.image, self.rect)
+        
+        # Dibujar el sombrero si hay uno equipado
+        if self.hat_img:
+            hat_pos = (
+                self.rect.centerx + self.hat_offset[0] - self.hat_img.get_width() // 2,
+                self.rect.centery + self.hat_offset[1] - self.hat_img.get_height() // 2
+            )
+            screen.blit(self.hat_img, hat_pos)

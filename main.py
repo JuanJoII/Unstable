@@ -73,7 +73,7 @@ class Game:
 
     def reset_game(self):
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
-        self.player = Player(0, 0)
+        self.player = Player(0, 0, sombrero_actual=self.sombrero_actual)
         if ia_a_usar == 'MinMax':
             self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         elif ia_a_usar == 'Prop':
@@ -149,19 +149,18 @@ class Game:
                         self.scroll_offset = max(0, self.scroll_offset - 20)
                     elif event.button == 5:
                         self.scroll_offset += 20
+                        
                     elif event.button == 1:
                         # Click en sombreros
                         for rect, hat in self.shop_button_rects:
                             if rect.collidepoint(event.pos):
                                 if hat["nombre"] in self.sombreros_comprados:
                                     self.sombrero_actual = hat["nombre"]
-                                    print(f"Sombrero {hat['nombre']} equipado.")
-                                    self.player.equip_hat(hat["imagen"])  # Pasar la ruta
                                 elif self.coins_count >= hat["precio"]:
                                     self.coins_count -= hat["precio"]
                                     self.sombreros_comprados.append(hat["nombre"])
                                     self.sombrero_actual = hat["nombre"]
-                                    self.player.equip_hat(hat["imagen"])  # Pasar la ruta
+
 
                         # Botón MENÚ
                         if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
