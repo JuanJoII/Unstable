@@ -6,6 +6,7 @@ from save_score import save_score
 from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
+from Screens.Leaderboard_Screen import draw_leaderboard_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
@@ -27,6 +28,7 @@ class Game:
         self.game_screen = GameScreen()
         
         self.show_start_screen = True
+        self.show_leaderboard = False
         self.game_over = False
         self.winner = None
         self.turno_jugador = True
@@ -104,11 +106,15 @@ class Game:
 
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_button_rect, exit_button_rect = draw_start_screen(self.screen)
+                    start_button_rect, lead_button_rect,exit_button_rect = draw_start_screen(self.screen)
                     if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.reset_game()
                         self.game_screen = GameScreen()
+                    elif lead_button_rect.collidepoint(event.pos):
+                        print("Mostrando tutorial...")
+                        self.show_start_screen = False
+                        self.show_leaderboard = True
                     elif exit_button_rect.collidepoint(event.pos):
                         pygame.quit()
                         sys.exit()
@@ -125,8 +131,6 @@ class Game:
                     elif button_rects[1].collidepoint(event.pos):  # GUARDAR
                         save_score(self.score, self.screen)
                         print("Partida guardada.")
-                        # print("Guardando partida...")
-                        # Aquí iría la lógica para guardar el juego
                         
                     elif button_rects[2].collidepoint(event.pos):  # TIENDA
                         self.scroll_offset = 0
@@ -145,17 +149,19 @@ class Game:
                         self.scroll_offset = max(0, self.scroll_offset - 20)
                     elif event.button == 5:
                         self.scroll_offset += 20
-
                     elif event.button == 1:
                         # Click en sombreros
                         for rect, hat in self.shop_button_rects:
                             if rect.collidepoint(event.pos):
                                 if hat["nombre"] in self.sombreros_comprados:
                                     self.sombrero_actual = hat["nombre"]
+                                    print(f"Sombrero {hat['nombre']} equipado.")
+                                    self.player.equip_hat(hat["imagen"])  # Pasar la ruta
                                 elif self.coins_count >= hat["precio"]:
                                     self.coins_count -= hat["precio"]
                                     self.sombreros_comprados.append(hat["nombre"])
                                     self.sombrero_actual = hat["nombre"]
+                                    self.player.equip_hat(hat["imagen"])  # Pasar la ruta
 
                         # Botón MENÚ
                         if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
@@ -168,6 +174,13 @@ class Game:
                             self.show_store = False
                             self.reset_game()
                             self.game_screen = GameScreen()
+                            
+            if self.show_leaderboard:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    leaderboard_button_rect = draw_leaderboard_screen(self.screen)
+                    if leaderboard_button_rect.collidepoint(event.pos):
+                        self.show_leaderboard = False
+                        self.show_start_screen = True
 
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:
@@ -278,6 +291,8 @@ class Game:
     def render(self):
         if self.show_start_screen:
             draw_start_screen(self.screen)
+        elif self.show_leaderboard:
+            draw_leaderboard_screen(self.screen)
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,

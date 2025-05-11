@@ -4,7 +4,6 @@ import pygame
 from constantes import SCREEN_SIZE
 
 def save_score(score, main_screen):
-    # Configuración temporal de la ventana de entrada
     input_screen = pygame.display.set_mode((400, 300))
     pygame.display.set_caption("Guardar Puntaje")
     

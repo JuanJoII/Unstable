@@ -1,5 +1,9 @@
 [
     {
+        "nombre": "Arnold",
+        "puntaje": 55
+    },
+    {
         "nombre": "wiii",
         "puntaje": 28
     },
