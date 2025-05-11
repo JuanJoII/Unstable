@@ -33,31 +33,16 @@ for hat in hats:
 
 
 def get_current_hat(sombrero_actual, sombreros_comprados, hats_list=None):
-    """
-    Retorna el sombrero actual equipado.
-    
-    Args:
-        sombrero_actual (str): Nombre del sombrero actualmente equipado
-        sombreros_comprados (list): Lista de nombres de sombreros que ha comprado el jugador
-        hats_list (list, optional): Lista de sombreros disponibles. Si es None, usa la lista global.
-    
-    Returns:
-        dict: Diccionario con la información del sombrero actual, o None si no hay ninguno equipado
-    """
-    # Si no hay un sombrero seleccionado o el sombrero no está en la lista de comprados
     if not sombrero_actual or sombrero_actual not in sombreros_comprados:
         return None
     
-    # Usar la lista de sombreros proporcionada o la global
     if hats_list is None:
         hats_list = hats
     
-    # Buscar el sombrero en la lista de sombreros disponibles
     for hat in hats_list:
         if hat["nombre"] == sombrero_actual:
             return hat
     
-    # Si no se encuentra el sombrero (no debería ocurrir si los datos son consistentes)
     return None
 
 
