@@ -6,7 +6,8 @@ from save_score import save_score
 from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
-from Screens.Leaderboard_Screen import draw_leaderboard_screen
+from Screens.Shop_Screen import hats
+from Screens.Leaderboard_Screen import cargar_puntajes, draw_leaderboard_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
@@ -47,6 +48,10 @@ class Game:
         self.shop_menu_rect = None
         self.shop_jugar_rect = None
 
+        self.leaderboard_scroll_y = 0
+        self.leaderboard_scroll_speed = 20
+        self.leaderboard_max_scroll = 0
+        self.leaderboard_table_rect = None
 
         self.scroll_offset = 0
 
@@ -54,6 +59,8 @@ class Game:
         self.player = None
         self.ai = None
         
+        self.shop_error_message = None 
+
         self.reset_game()
         
     def generate_coins(self, num_coins):
@@ -142,44 +149,61 @@ class Game:
                         self.show_start_screen = True
                         self.game_over = False
 
+            # En tu método handle_events:
             if self.show_store:
+                if event.type == pygame.MOUSEWHEEL:
+                    # Manejo mejorado del scroll
+                    scroll_speed = 30  # Velocidad de scroll más consistente
+                    self.scroll_offset -= event.y * scroll_speed
+                    # Limitar el scroll_offset entre 0 y el máximo permitido
+                    max_scroll = max(0, len(hats) * 80 - (SCREEN_SIZE - 250))  # Calcula el máximo scroll posible
+                    self.scroll_offset = max(0, min(self.scroll_offset, max_scroll))
+                
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Scroll
-                    if event.button == 4:
-                        self.scroll_offset = max(0, self.scroll_offset - 20)
-                    elif event.button == 5:
-                        self.scroll_offset += 20
-                        
-                    elif event.button == 1:
-                        # Click en sombreros
-                        for rect, hat in self.shop_button_rects:
-                            if rect.collidepoint(event.pos):
-                                if hat["nombre"] in self.sombreros_comprados:
-                                    self.sombrero_actual = hat["nombre"]
-                                elif self.coins_count >= hat["precio"]:
-                                    self.coins_count -= hat["precio"]
-                                    self.sombreros_comprados.append(hat["nombre"])
-                                    self.sombrero_actual = hat["nombre"]
-
-
-                        # Botón MENÚ
-                        if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
-                            self.show_store = False
-                            self.show_start_screen = True
-                            self.reset_game()
-
-                        # Botón JUGAR
-                        elif self.shop_jugar_rect and self.shop_jugar_rect.collidepoint(event.pos):
-                            self.show_store = False
-                            self.reset_game()
-                            self.game_screen = GameScreen()
+                    # Manejo de clics en sombreros (versión simplificada y más robusta)
+                    for rect, hat in self.shop_button_rects:
+                        if rect.collidepoint(event.pos):  # La verificación de área visible ahora se hace en draw_shop_screen
+                            if hat["nombre"] in self.sombreros_comprados:
+                                self.sombrero_actual = hat["nombre"]
+                                self.shop_error_message = None
+                            elif self.coins_count >= hat["precio"]:
+                                self.coins_count -= hat["precio"]
+                                self.sombreros_comprados.append(hat["nombre"])
+                                self.sombrero_actual = hat["nombre"]
+                                self.shop_error_message = None
+                            else:
+                                self.shop_error_message = "¡No tienes suficientes monedas!"
+                    
+                    # Manejo de botones MENÚ y JUGAR
+                    if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
+                        self.show_store = False
+                        self.show_start_screen = True
+                        self.scroll_offset = 0  # Resetear el scroll al salir
+                        self.shop_error_message = None
+                    elif self.shop_jugar_rect and self.shop_jugar_rect.collidepoint(event.pos):
+                        self.show_store = False
+                        self.scroll_offset = 0  # Resetear el scroll al salir
+                        self.reset_game()
+                        self.shop_error_message = None
                             
             if self.show_leaderboard:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    leaderboard_button_rect = draw_leaderboard_screen(self.screen)
+                    leaderboard_button_rect, table_rect = draw_leaderboard_screen(
+                        self.screen, 
+                        self.leaderboard_scroll_y,
+                        self.leaderboard_max_scroll
+                    )
                     if leaderboard_button_rect.collidepoint(event.pos):
                         self.show_leaderboard = False
                         self.show_start_screen = True
+    
+                # Manejo del scroll del leaderboard
+                if event.type == pygame.MOUSEWHEEL:
+                    self.leaderboard_scroll_y -= event.y * self.leaderboard_scroll_speed
+                    self.leaderboard_scroll_y = max(0, min(
+                        self.leaderboard_scroll_y, 
+                        self.leaderboard_max_scroll
+                    ))
 
             if not self.game_over and not self.show_start_screen:
                 if event.type == pygame.KEYDOWN:
@@ -291,7 +315,15 @@ class Game:
         if self.show_start_screen:
             draw_start_screen(self.screen)
         elif self.show_leaderboard:
-            draw_leaderboard_screen(self.screen)
+            leaderboard_button_rect, self.leaderboard_table_rect = draw_leaderboard_screen(
+                self.screen,
+                self.leaderboard_scroll_y,
+                self.leaderboard_max_scroll
+            )
+            # Actualizamos el max_scroll basado en lo que devuelve la función
+            if self.leaderboard_table_rect:
+                content_height = max(500, len(cargar_puntajes()) * 50)
+                self.leaderboard_max_scroll = max(0, content_height - self.leaderboard_table_rect.height + 20)
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,

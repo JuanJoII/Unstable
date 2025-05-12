@@ -1,7 +1,23 @@
 [
     {
+        "nombre": "steff",
+        "puntaje": 99
+    },
+    {
+        "nombre": "juanjo",
+        "puntaje": 99
+    },
+    {
         "nombre": "aaa",
         "puntaje": 93
+    },
+    {
+        "nombre": "hola",
+        "puntaje": 79
+    },
+    {
+        "nombre": "fdsa",
+        "puntaje": 68
     },
     {
         "nombre": "Arnold",
@@ -10,9 +26,5 @@
     {
         "nombre": "wiii",
         "puntaje": 28
-    },
-    {
-        "nombre": "hola",
-        "puntaje": 25
     }
 ]

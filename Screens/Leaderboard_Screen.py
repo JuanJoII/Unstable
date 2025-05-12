@@ -1,20 +1,19 @@
 import pygame
 import json
 import os
-import math
 from constantes import SCREEN_SIZE
 
+# Inicialización de pygame
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
 
 # Fondo
 background_image = pygame.image.load("Assets/UI/FondoUI.png").convert()
 background_image = pygame.transform.scale(background_image, (SCREEN_SIZE, SCREEN_SIZE))
 
-# Cargar imagen del botón de volver
-boton_volver_img = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
+# Botón de volver (configuración inicial)
+boton_volver_img_original = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 button_size = (160, 48)
-boton_volver_img = pygame.transform.scale(boton_volver_img, button_size)
+boton_volver_img = pygame.transform.scale(boton_volver_img_original, button_size)
 
 # Colores
 GOLD = (255, 215, 0)
@@ -24,6 +23,8 @@ WHITE = (255, 255, 255)
 GREEN = (100, 255, 100)
 BLACK = (0, 0, 0)
 LIGHT_BLUE = (100, 100, 255)
+DARK_BLUE = (20, 20, 40)
+LIGHT_GRAY = (70, 70, 90)
 
 def cargar_puntajes():
     """Carga los puntajes desde el archivo JSON"""
@@ -31,140 +32,137 @@ def cargar_puntajes():
         if os.path.exists('Saves/puntajes.json'):
             with open('Saves/puntajes.json', 'r') as f:
                 puntajes = json.load(f)
-                # Ordenar puntajes de mayor a menor
                 puntajes.sort(key=lambda x: x['puntaje'], reverse=True)
                 return puntajes
-        else:
-            return []
+        return []
     except Exception as e:
         print(f"Error al cargar puntajes: {e}")
         return []
 
 def draw_text_with_shadow(surface, text, font, color, shadow_color, pos):
-    """Dibuja texto con sombra para mejor legibilidad"""
+    """Dibuja texto con sombra"""
     shadow_pos = (pos[0] + 2, pos[1] + 2)
     shadow = font.render(text, True, shadow_color)
     surface.blit(shadow, shadow_pos)
-    rendered_text = font.render(text, True, color)
-    surface.blit(rendered_text, pos)
+    surface.blit(font.render(text, True, color), pos)
 
 def draw_medal(surface, position, rank):
-    """Dibuja una medalla según la posición en el ranking"""
-    radius = 15
-    if rank == 0:  # Oro
-        color = GOLD
-        text = "1"
-    elif rank == 1:  # Plata
-        color = SILVER
-        text = "2"
-    elif rank == 2:  # Bronce
-        color = BRONZE
-        text = "3"
-    else:
-        return  # No dibujamos medalla para posiciones fuera del podio
-    
-    pygame.draw.circle(surface, color, position, radius)
-    pygame.draw.circle(surface, BLACK, position, radius, 2)
-    
-    small_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 12)
-    text_surf = small_font.render(text, True, BLACK)
-    text_rect = text_surf.get_rect(center=position)
-    surface.blit(text_surf, text_rect)
+    """Dibuja una medalla según la posición"""
+    radius = 12
+    colors = [GOLD, SILVER, BRONZE]
+    if rank < 3:
+        pygame.draw.circle(surface, colors[rank], position, radius)
+        pygame.draw.circle(surface, BLACK, position, radius, 2)
+        small_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 10)
+        text_surf = small_font.render(str(rank+1), True, BLACK)
+        surface.blit(text_surf, (position[0]-4, position[1]-6))
 
-def draw_leaderboard_screen(screen):
+def draw_leaderboard_screen(screen, scroll_y=0, max_scroll=0):
+    global boton_volver_img
+    
+    # Configuración del grid ajustada
+    COL_POS = 60       # Ancho columna posición
+    COL_NAME = 150     # Ancho columna nombre
+    COL_SCORE = 100    # Ancho columna puntaje
+    ROW_HEIGHT = 35    # Altura de fila
+    TABLE_MARGIN = 40  # Margen lateral
+    
     screen.blit(background_image, (0, 0))
     
-    # Fuentes
-    title_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 24)
-    header_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 16)
-    score_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 18)
-    score_font_small = pygame.font.Font("Assets/UI/PressStart2P.ttf", 14)
-    button_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 16)
+    # Fuentes (ligeramente más pequeñas)
+    title_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 20) 
+    header_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 12)  
+    score_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 12)  
+    button_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 14)
     
-    # Título
+    # Título más compacto
     title_text = "MEJORES PUNTAJES"
     title_x = SCREEN_SIZE // 2 - title_font.size(title_text)[0] // 2
-    draw_text_with_shadow(screen, title_text, title_font, GOLD, BLACK, (title_x, 50))
+    draw_text_with_shadow(screen, title_text, title_font, GREEN, BLACK, (title_x, 25)) 
     
-    # Cabecera de la tabla - diseño simplificado
-    header_y = 100
+    # Área de la tabla más estrecha
+    table_width = COL_POS + COL_NAME + COL_SCORE + 20  
+    table_rect = pygame.Rect(
+        (SCREEN_SIZE - table_width)//2, 
+        70, 
+        table_width, 
+        SCREEN_SIZE - 160 
+    )
     
-    # Fondo para la cabecera
-    header_bg = pygame.Rect(100, header_y - 5, SCREEN_SIZE - 200, 30)
-    pygame.draw.rect(screen, (40, 40, 60), header_bg)
-    pygame.draw.rect(screen, GOLD, header_bg, 2)
+    # Fondo de la tabla con bordes más delgados
+    pygame.draw.rect(screen, DARK_BLUE, table_rect)
+    pygame.draw.rect(screen, GOLD, table_rect, 2) 
     
-    # Textos de cabecera - simplificado a solo POS y JUGADOR
-    draw_text_with_shadow(screen, "POS", header_font, WHITE, BLACK, (130, header_y))
-    draw_text_with_shadow(screen, "JUGADOR", header_font, WHITE, BLACK, (220, header_y))
+    # Superficie de contenido
+    content_height = max(400, len(cargar_puntajes()) * ROW_HEIGHT + 40)
+    content_surface = pygame.Surface((table_rect.width - 10, content_height)) 
+    content_surface.fill(DARK_BLUE)
     
-    # Cargar puntajes
+    # Cabecera más compacta
+    header_bg = pygame.Rect(5, 5, table_rect.width - 10, 22)  # Más estrecha y baja
+    pygame.draw.rect(content_surface, (50, 50, 80), header_bg)
+    pygame.draw.rect(content_surface, GOLD, header_bg, 1)
+    
+    # Textos de cabecera ajustados
+    draw_text_with_shadow(content_surface, "POS", header_font, WHITE, BLACK, (15, 8))
+    draw_text_with_shadow(content_surface, "JUGADOR", header_font, WHITE, BLACK, (COL_POS + 5, 8))
+    draw_text_with_shadow(content_surface, "PUNTOS", header_font, WHITE, BLACK, (COL_POS + COL_NAME + 5, 8))
+    
+    # Mostrar puntajes con mejor espaciado
     puntajes = cargar_puntajes()
-    
-    # Mostrar puntajes
-    if not puntajes:
-        no_scores_text = "No hay puntajes guardados"
-        no_scores_x = SCREEN_SIZE // 2 - score_font.size(no_scores_text)[0] // 2
-        draw_text_with_shadow(screen, no_scores_text, score_font, WHITE, BLACK, (no_scores_x, 150))
-    else:
+    if puntajes:
         for i, puntaje in enumerate(puntajes[:10]):  # Mostrar solo top 10
-            # Calcular la posición vertical para cada entrada, con más espacio para nombre y puntaje
-            pos_y = 150 + i * 50  # Más espacio entre filas
+            pos_y = 40 + i * ROW_HEIGHT  # Comenzar más arriba
             
-            # Fondo para cada fila, alternando colores
-            row_bg_color = (30, 30, 45) if i % 2 == 0 else (40, 40, 60)
-            row_bg = pygame.Rect(100, pos_y - 5, SCREEN_SIZE - 200, 40)  # Mayor altura para acomodar dos líneas
-            pygame.draw.rect(screen, row_bg_color, row_bg)
+            # Fondo de fila
+            row_bg = pygame.Rect(5, pos_y - 3, table_rect.width - 10, ROW_HEIGHT - 5)
+            pygame.draw.rect(content_surface, (40, 40, 60) if i % 2 == 0 else (50, 50, 70), row_bg)
+            pygame.draw.rect(content_surface, (80, 80, 100), row_bg, 1)
             
-            # Medallas para los 3 primeros lugares
+            # Posición (sin punto si es menor a 10 para ahorrar espacio)
+            pos_text = f"{i+1:02d}"  # Formato 01, 02, etc.
+            draw_text_with_shadow(content_surface, pos_text, score_font, WHITE, BLACK, (15, pos_y + 8))
+            
+            # Medallas solo para top 3, mejor posicionadas
             if i < 3:
-                draw_medal(screen, (130, pos_y + 15), i)
-            else:
-                # Número de posición para el resto
-                pos_text = f"{i+1}."
-                draw_text_with_shadow(screen, pos_text, score_font, WHITE, BLACK, (130, pos_y + 5))
+                medal_pos = (COL_POS - 25, pos_y + ROW_HEIGHT//2)  # Más a la izquierda
+                draw_medal(content_surface, medal_pos, i)
             
-            # Nombre del jugador (en la línea superior)
-            nombre = puntaje.get('nombre', 'Sin nombre')
-            name_text = nombre[:15]  # Limitar longitud del nombre
-            draw_text_with_shadow(screen, name_text, score_font, WHITE, BLACK, (220, pos_y))
+            # Nombre del jugador (10 caracteres máximo)
+            nombre = puntaje.get('nombre', 'Sin nombre')[:10]
+            draw_text_with_shadow(content_surface, nombre, score_font, WHITE, BLACK, (COL_POS + 5, pos_y + 8))
             
-            # Puntaje (en la línea inferior)
+            # Puntaje compacto
             try:
                 puntos = puntaje.get('puntaje', 0)
-                score_text = f"{puntos} pts"
-                
-                # Color según posición
-                if i == 0:
-                    score_color = GOLD
-                elif i == 1:
-                    score_color = SILVER
-                elif i == 2:
-                    score_color = BRONZE
-                else:
-                    score_color = GREEN
-                    
-                # Mostrar puntaje debajo del nombre, con fuente ligeramente más pequeña
-                draw_text_with_shadow(screen, score_text, score_font_small, score_color, BLACK, (220, pos_y + 22))
+                score_text = f"{puntos}p" 
+                score_color = GOLD if i == 0 else SILVER if i == 1 else BRONZE if i == 2 else GREEN
+                draw_text_with_shadow(content_surface, score_text, score_font, score_color, BLACK,
+                                    (COL_POS + COL_NAME + 5, pos_y + 8))
             except:
-                draw_text_with_shadow(screen, "Error", score_font_small, (255, 0, 0), BLACK, (220, pos_y + 22))
+                draw_text_with_shadow(content_surface, "Error", score_font, (255, 0, 0), BLACK,
+                                    (COL_POS + COL_NAME + 5, pos_y + 8))
     
-    # Botón de volver
-    back_button_pos = (SCREEN_SIZE // 2 - button_size[0] // 2, SCREEN_SIZE - 100)
+    # Scroll y dibujado del contenido
+    max_scroll = max(0, content_height - table_rect.height + 10)
+    scroll_y = max(0, min(scroll_y, max_scroll))
+    screen.blit(content_surface, (table_rect.x + 5, table_rect.y + 5),
+               (0, scroll_y, table_rect.width - 10, table_rect.height - 10))
+    
+    # Botón 
+    boton_volver_img = pygame.transform.scale(boton_volver_img_original, button_size)
+    back_button_pos = (SCREEN_SIZE//2 - button_size[0]//2, SCREEN_SIZE - 80) 
     back_button_rect = pygame.Rect(back_button_pos, button_size)
     screen.blit(boton_volver_img, back_button_pos)
     
-    # Efecto hover para el botón
+    # Texto del botón
     mouse_pos = pygame.mouse.get_pos()
     hover_back = back_button_rect.collidepoint(mouse_pos)
-    back_color = LIGHT_BLUE if hover_back else WHITE
-    back_text = button_font.render("VOLVER", True, back_color)
-    
-    # Centrar texto en el botón
+    back_text = button_font.render("VOLVER", True, LIGHT_BLUE if hover_back else WHITE)
     screen.blit(back_text, (
-        back_button_rect.centerx - back_text.get_width() // 2,
-        back_button_rect.centery - back_text.get_height() // 2
+        back_button_rect.centerx - back_text.get_width()//2,
+        back_button_rect.centery - back_text.get_height()//2
     ))
     
     pygame.display.flip()
-    return back_button_rect
+    return back_button_rect, table_rect
