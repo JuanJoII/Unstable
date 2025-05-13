@@ -6,11 +6,14 @@ from save_score import save_score
 from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
+from Screens.Shop_Screen import draw_shop_screen
 from Screens.Shop_Screen import hats
 from Screens.Leaderboard_Screen import cargar_puntajes, draw_leaderboard_screen
+from Screens.Tutorial_Screen import draw_tuto_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
+from Entities.AI_Improved import AI as AIImproved
 from Entities.AI_Prop import AI as AIProp
 from Entities.FuzzyIA import FuzzyAI
 from Entities.Coin import Coin
@@ -30,6 +33,7 @@ class Game:
         
         self.show_start_screen = True
         self.show_leaderboard = False
+        self.show_tutorial = False
         self.game_over = False
         self.winner = None
         self.turno_jugador = True
@@ -39,6 +43,7 @@ class Game:
         self.coins = pygame.sprite.Group()
         self.coins_count = 0
         self.score = 0
+        self.tutorial_index = 1
 
         self.show_store = False
         # self.monedas = self.coins_count
@@ -82,7 +87,7 @@ class Game:
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
         self.player = Player(0, 0, sombrero_actual=self.sombrero_actual)
         if ia_a_usar == 'MinMax':
-            self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+            self.ai = AIImproved(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         elif ia_a_usar == 'Prop':
             self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         elif ia_a_usar == 'Fuzzy':
@@ -114,14 +119,12 @@ class Game:
             # Pantalla de inicio
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_rect, ranking_rect, exit_rect = draw_start_screen(self.screen)
-                    
-                    if start_rect.collidepoint(event.pos):
+                    start_button_rect, lead_button_rect, exit_button_rect = draw_start_screen(self.screen)
+                    if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
-                        self.reset_game()
+                        self.show_tutorial = True
                         print("DEBUG: Botón Iniciar presionado")
-                    
-                    elif ranking_rect.collidepoint(event.pos):
+                    elif lead_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.show_leaderboard = True
                         self.leaderboard_scroll_y = 0
@@ -130,7 +133,7 @@ class Game:
                         self.leaderboard_max_scroll = max(0, len(puntajes) * 50 - 400)
                         print("DEBUG: Botón Ranking presionado - Mostrando leaderboard")
                     
-                    elif exit_rect.collidepoint(event.pos):
+                    elif exit_button_rect.collidepoint(event.pos):
                         print("DEBUG: Botón Salir presionado")
                         return False
 
@@ -244,6 +247,21 @@ class Game:
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.show_store = False
 
+            if self.show_tutorial:             
+                #self.tutorial_index = 1  # Empezamos en la primera pantalla del tutorial
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    saltar_button_rect, siguiente_button_rect = draw_tuto_screen(self.screen, self.tutorial_index)
+
+                    if saltar_button_rect.collidepoint(event.pos):
+                        self.show_tutorial=False
+
+                    elif siguiente_button_rect.collidepoint(event.pos):
+                        self.tutorial_index += 1
+                        print(self.tutorial_index)
+                        if self.tutorial_index > 3:
+                            self.show_tutorial=False
+
         return True
 
     def update(self):
@@ -330,7 +348,8 @@ class Game:
             content_height = len(cargar_puntajes()) * 50
             if table_rect:
                 self.leaderboard_max_scroll = max(0, content_height - table_rect.height)
-        
+        elif self.show_tutorial:
+            draw_tuto_screen(self.screen, self.tutorial_index)
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,

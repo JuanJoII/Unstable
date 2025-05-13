@@ -30,8 +30,6 @@ class Player(pygame.sprite.Sprite):
             self.cargar_sombrero(self.sombrero_actual)
     
     def cargar_sombrero(self, nombre_sombrero):
-        """Carga la imagen del sombrero basado en el nombre"""
-        # Lista de sombreros disponibles (debería coincidir con la de la tienda)
         hats = [
         {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png", "precio": 5},
         {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png", "precio": 8},
