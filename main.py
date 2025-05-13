@@ -111,58 +111,63 @@ class Game:
             if event.type == pygame.QUIT:
                 return False
 
+            # Pantalla de inicio
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_button_rect, lead_button_rect,exit_button_rect = draw_start_screen(self.screen)
-                    if start_button_rect.collidepoint(event.pos):
+                    start_rect, ranking_rect, exit_rect = draw_start_screen(self.screen)
+                    
+                    if start_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.reset_game()
-                        self.game_screen = GameScreen()
-                    elif lead_button_rect.collidepoint(event.pos):
-                        print("Mostrando tutorial...")
+                        print("DEBUG: Botón Iniciar presionado")
+                    
+                    elif ranking_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.show_leaderboard = True
-                    elif exit_button_rect.collidepoint(event.pos):
-                        pygame.quit()
-                        sys.exit()
+                        self.leaderboard_scroll_y = 0
+                        # Forzar recarga de puntajes
+                        puntajes = cargar_puntajes()
+                        self.leaderboard_max_scroll = max(0, len(puntajes) * 50 - 400)
+                        print("DEBUG: Botón Ranking presionado - Mostrando leaderboard")
+                    
+                    elif exit_rect.collidepoint(event.pos):
+                        print("DEBUG: Botón Salir presionado")
+                        return False
 
-            if self.game_over:
+            elif self.game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     button_rects = draw_end_screen(self.screen, self.winner)
                     
-                    if button_rects[0].collidepoint(event.pos):
+                    if button_rects[0].collidepoint(event.pos):  # Reintentar
                         self.reset_game()
                         self.game_over = False
-                        self.show_start_screen = False
-
-                    elif button_rects[1].collidepoint(event.pos):  # GUARDAR
-                        save_score(self.score, self.screen)
-                        print("Partida guardada.")
-                        
-                    elif button_rects[2].collidepoint(event.pos):  # TIENDA
-                        self.scroll_offset = 0
+                    
+                    elif button_rects[1].collidepoint(event.pos):  # Guardar
+                        if save_score(self.score, self.screen):
+                            self.game_over = False
+                            self.show_leaderboard = True
+                            self.leaderboard_scroll_y = 0
+                    
+                    elif button_rects[2].collidepoint(event.pos):  # Tienda
                         self.show_store = True
                         self.game_over = False
-
-                    elif button_rects[3].collidepoint(event.pos):  # MENÚ
-                        self.reset_game()
+                    
+                    elif button_rects[3].collidepoint(event.pos):  # Menú
                         self.show_start_screen = True
                         self.game_over = False
 
-            # En tu método handle_events:
+            
             if self.show_store:
                 if event.type == pygame.MOUSEWHEEL:
-                    # Manejo mejorado del scroll
-                    scroll_speed = 30  # Velocidad de scroll más consistente
+                    scroll_speed = 30 
                     self.scroll_offset -= event.y * scroll_speed
                     # Limitar el scroll_offset entre 0 y el máximo permitido
                     max_scroll = max(0, len(hats) * 80 - (SCREEN_SIZE - 250))  # Calcula el máximo scroll posible
                     self.scroll_offset = max(0, min(self.scroll_offset, max_scroll))
                 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Manejo de clics en sombreros (versión simplificada y más robusta)
                     for rect, hat in self.shop_button_rects:
-                        if rect.collidepoint(event.pos):  # La verificación de área visible ahora se hace en draw_shop_screen
+                        if rect.collidepoint(event.pos):
                             if hat["nombre"] in self.sombreros_comprados:
                                 self.sombrero_actual = hat["nombre"]
                                 self.shop_error_message = None
@@ -186,22 +191,21 @@ class Game:
                         self.reset_game()
                         self.shop_error_message = None
                             
-            if self.show_leaderboard:
+            elif self.show_leaderboard:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    leaderboard_button_rect, table_rect = draw_leaderboard_screen(
-                        self.screen, 
+                    back_rect, _ = draw_leaderboard_screen(
+                        self.screen,
                         self.leaderboard_scroll_y,
                         self.leaderboard_max_scroll
                     )
-                    if leaderboard_button_rect.collidepoint(event.pos):
+                    if back_rect.collidepoint(event.pos):
                         self.show_leaderboard = False
                         self.show_start_screen = True
-    
-                # Manejo del scroll del leaderboard
+                
                 if event.type == pygame.MOUSEWHEEL:
-                    self.leaderboard_scroll_y -= event.y * self.leaderboard_scroll_speed
+                    self.leaderboard_scroll_y -= event.y * 20
                     self.leaderboard_scroll_y = max(0, min(
-                        self.leaderboard_scroll_y, 
+                        self.leaderboard_scroll_y,
                         self.leaderboard_max_scroll
                     ))
 
@@ -314,16 +318,19 @@ class Game:
     def render(self):
         if self.show_start_screen:
             draw_start_screen(self.screen)
+        
         elif self.show_leaderboard:
-            leaderboard_button_rect, self.leaderboard_table_rect = draw_leaderboard_screen(
+            # Dibujar leaderboard y actualizar scroll máximo
+            back_rect, table_rect = draw_leaderboard_screen(
                 self.screen,
                 self.leaderboard_scroll_y,
                 self.leaderboard_max_scroll
             )
-            # Actualizamos el max_scroll basado en lo que devuelve la función
-            if self.leaderboard_table_rect:
-                content_height = max(500, len(cargar_puntajes()) * 50)
-                self.leaderboard_max_scroll = max(0, content_height - self.leaderboard_table_rect.height + 20)
+            # Actualizar el scroll máximo basado en el contenido real
+            content_height = len(cargar_puntajes()) * 50
+            if table_rect:
+                self.leaderboard_max_scroll = max(0, content_height - table_rect.height)
+        
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,
@@ -332,10 +339,14 @@ class Game:
                 self.sombreros_comprados,
                 self.scroll_offset
             )
+        
         elif self.game_over:
             draw_end_screen(self.screen, self.winner)
+        
         else:
             self.game_screen.draw(self.screen, self.grid, self.player, self.ai, self.coins, self.coins_count, self.score)
+        
+        pygame.display.flip()
 
 
     def run(self):

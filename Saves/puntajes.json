@@ -1,30 +1,42 @@
 [
     {
         "nombre": "steff",
-        "puntaje": 99
+        "puntaje": 115
+    },
+    {
+        "nombre": "sdada",
+        "puntaje": 115
+    },
+    {
+        "nombre": "sdad",
+        "puntaje": 102
     },
     {
         "nombre": "juanjo",
         "puntaje": 99
     },
     {
+        "nombre": "dasd",
+        "puntaje": 97
+    },
+    {
+        "nombre": "dasdas",
+        "puntaje": 97
+    },
+    {
         "nombre": "aaa",
         "puntaje": 93
     },
     {
+        "nombre": "mil",
+        "puntaje": 89
+    },
+    {
+        "nombre": "sdsads",
+        "puntaje": 89
+    },
+    {
         "nombre": "hola",
         "puntaje": 79
-    },
-    {
-        "nombre": "fdsa",
-        "puntaje": 68
-    },
-    {
-        "nombre": "Arnold",
-        "puntaje": 55
-    },
-    {
-        "nombre": "wiii",
-        "puntaje": 28
     }
 ]

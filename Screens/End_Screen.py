@@ -3,11 +3,11 @@ from constantes import SCREEN_SIZE
 
 pygame.init()
 
-# Cargar recursos
+# Cargar recursos 
 background_image = pygame.image.load("Assets/UI/FondoUI.png").convert_alpha()
 background_image = pygame.transform.scale(background_image, (SCREEN_SIZE, SCREEN_SIZE))
 
-# Botones
+# Botones 
 boton_reintentar_img = pygame.image.load("Assets/UI/ButtonGreen.png").convert_alpha()
 boton_menu_img = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 boton_store_img = pygame.image.load("Assets/UI/ButtonStore2.png").convert_alpha()
@@ -17,7 +17,7 @@ boton_reintentar_img = pygame.transform.scale(boton_reintentar_img, button_size)
 boton_menu_img = pygame.transform.scale(boton_menu_img, button_size)
 boton_store_img = pygame.transform.scale(boton_store_img, button_size)
 
-# Fuente
+# Fuente 
 title_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 28)
 button_font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 12)
 
@@ -38,18 +38,17 @@ def draw_end_screen(screen, result):
 
     title_surface = title_font.render(text, True, text_color)
     title_x = SCREEN_SIZE // 2 - title_surface.get_width() // 2
-    title_y = 80
+    title_y = 60
     draw_text_with_shadow(screen, text, title_font, text_color, shadow_color, (title_x, title_y))
 
-    # Botones en columna centrados
-    button_spacing = 15
-    total_height = 3 * button_size[1] + 3 * button_spacing  # Aumentamos a 3 botones
-    start_y = SCREEN_SIZE // 2 - total_height // 2 + 40
+    
+    button_spacing = 8
+    total_height = 4 * button_size[1] + 3 * button_spacing 
+    start_y = SCREEN_SIZE // 2 - total_height // 2 + 20  
 
-    # Añadimos el botón GUARDAR (usaremos boton_store_img como placeholder por ahora)
     button_positions = [
         ("REINTENTAR", boton_reintentar_img, start_y),
-        ("GUARDAR", boton_store_img, start_y + button_size[1] + button_spacing),  # Nuevo botón
+        ("GUARDAR", boton_reintentar_img, start_y + button_size[1] + button_spacing),
         ("TIENDA", boton_store_img, start_y + 2 * (button_size[1] + button_spacing)),
         ("MENÚ", boton_menu_img, start_y + 3 * (button_size[1] + button_spacing))
     ]

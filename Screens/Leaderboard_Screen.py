@@ -10,7 +10,7 @@ pygame.init()
 background_image = pygame.image.load("Assets/UI/FondoUI.png").convert()
 background_image = pygame.transform.scale(background_image, (SCREEN_SIZE, SCREEN_SIZE))
 
-# Botón de volver (configuración inicial)
+# Botón de volver
 boton_volver_img_original = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 button_size = (160, 48)
 boton_volver_img = pygame.transform.scale(boton_volver_img_original, button_size)
@@ -112,20 +112,20 @@ def draw_leaderboard_screen(screen, scroll_y=0, max_scroll=0):
     puntajes = cargar_puntajes()
     if puntajes:
         for i, puntaje in enumerate(puntajes[:10]):  # Mostrar solo top 10
-            pos_y = 40 + i * ROW_HEIGHT  # Comenzar más arriba
+            pos_y = 40 + i * ROW_HEIGHT
             
             # Fondo de fila
             row_bg = pygame.Rect(5, pos_y - 3, table_rect.width - 10, ROW_HEIGHT - 5)
             pygame.draw.rect(content_surface, (40, 40, 60) if i % 2 == 0 else (50, 50, 70), row_bg)
             pygame.draw.rect(content_surface, (80, 80, 100), row_bg, 1)
             
-            # Posición (sin punto si es menor a 10 para ahorrar espacio)
+            # Posición 
             pos_text = f"{i+1:02d}"  # Formato 01, 02, etc.
             draw_text_with_shadow(content_surface, pos_text, score_font, WHITE, BLACK, (15, pos_y + 8))
             
             # Medallas solo para top 3, mejor posicionadas
             if i < 3:
-                medal_pos = (COL_POS - 25, pos_y + ROW_HEIGHT//2)  # Más a la izquierda
+                medal_pos = (COL_POS - 25, pos_y + ROW_HEIGHT//2) 
                 draw_medal(content_surface, medal_pos, i)
             
             # Nombre del jugador (10 caracteres máximo)

@@ -8,6 +8,17 @@ class GameScreen:
             2: self._load_image("Assets/Fondo/tileSand.png"),
             3: self._load_image("Assets/Fondo/tileGrass.png")
         }
+        # Cargar fuente personalizada
+        self.font = pygame.font.Font("Assets/UI/PressStart2P.ttf", 16)
+        # Cargar iconos
+        self.coin_icon = pygame.image.load("Assets/UI/CoinBG.png").convert_alpha()
+        self.coin_icon = pygame.transform.scale(self.coin_icon, (24, 24))
+        self.score_icon = pygame.image.load("Assets/UI/Star.png").convert_alpha()
+        self.score_icon = pygame.transform.scale(self.score_icon, (24, 24))
+        
+        # Crear superficies semitransparentes para los contadores
+        self.info_panel = pygame.Surface((SCREEN_SIZE, 40), pygame.SRCALPHA)
+        self.info_panel.fill((0, 0, 0, 128))  # Fondo negro semitransparente
     
     def _load_image(self, path):
         image = pygame.image.load(path)
@@ -15,6 +26,8 @@ class GameScreen:
     
     def draw(self, screen, grid, player, ai, coins, coins_count, score):
         screen.fill((0, 0, 0))
+        
+        # Dibujar el grid
         for row in range(GRID_HEIGHT):
             for col in range(GRID_WIDTH):
                 if grid[row][col] > 0:
@@ -22,18 +35,25 @@ class GameScreen:
                     y = row * TILE_SIZE + MARGIN
                     screen.blit(self.tile_images[grid[row][col]], (x, y))
         
-        font = pygame.font.SysFont("Arial", 24)
-        coins_text = font.render(f"Monedas: {coins_count}", True, (255, 255, 0))
-        screen.blit(coins_text, (10, 10))
+        # Dibujar panel de información
+        screen.blit(self.info_panel, (0, 0))
         
-        score_text = font.render(f"Score: {score}", True, (255, 255, 0))
+        # Dibujar monedas con icono
+        coins_text = self.font.render(f"{coins_count}", True, (255, 255, 0))
+        screen.blit(self.coin_icon, (15, 8))
+        screen.blit(coins_text, (45, 10))
+        
+        # Dibujar score con icono
+        score_text = self.font.render(f"{score}", True, (255, 215, 0)) 
         score_text_width = score_text.get_width()
-        screen_width = SCREEN_SIZE
-        screen.blit(score_text, (screen_width - score_text_width - 10, 10)) 
+        screen.blit(self.score_icon, (SCREEN_SIZE - score_text_width - 40, 8))
+        screen.blit(score_text, (SCREEN_SIZE - score_text_width - 10, 10))
         
+        # Dibujar elementos del juego
         player.draw(screen, TILE_SIZE, MARGIN)
         ai.draw(screen, TILE_SIZE, MARGIN)
         for coin in coins:
             if not coin.collected:
                 coin.draw(screen, TILE_SIZE, MARGIN)
+        
         pygame.display.flip()

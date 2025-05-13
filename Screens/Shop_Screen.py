@@ -7,16 +7,16 @@ pygame.font.init()
 background_img = pygame.image.load("Assets/UI/FondoUI.png").convert_alpha()
 background_img = pygame.transform.scale(background_img, (SCREEN_SIZE, SCREEN_SIZE))
 
-# Cargar botones (Usando imágenes de la pantalla principal)
+# Cargar botones
 button_img = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 button_img = pygame.transform.scale(button_img, (150, 50))
 
-# Ajustar tamaño más pequeño para botones de la tienda
+# Ajustar tamaño para botones de la tienda
 button_size = (160, 48)
 boton_iniciar_img = pygame.image.load("Assets/UI/ButtonGreen.png").convert_alpha()
 boton_iniciar_img = pygame.transform.scale(boton_iniciar_img, button_size)
 
-# Botón de volver (configuración inicial)
+# Botón de volver
 boton_volver_img_original = pygame.image.load("Assets/UI/ButtonRed.png").convert_alpha()
 button_size = (160, 48)
 boton_volver_img = pygame.transform.scale(boton_volver_img_original, button_size)
@@ -40,6 +40,9 @@ hats = [
     {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png", "precio": 5},
     {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png", "precio": 8},
     {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png", "precio": 15},
+    {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_green.png", "precio": 20},
+    {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_onepi.png", "precio": 28},
+    {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_crown.png", "precio": 36},
 ]
 
 for hat in hats:
@@ -114,13 +117,13 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
     monedas_text = f"MONEDAS: {monedas}"
     draw_text_with_shadow(screen, monedas_text, item_font, COLOR_MONEDAS, COLOR_SOMBRA, (MARGIN_X, 60))
     
-    # Área de items con scroll (calculamos el espacio restante)
+    # Área de items con scroll 
     table_height = SCREEN_SIZE - MARGIN_Y - 100 - INFO_AREA_HEIGHT
     table_rect = pygame.Rect(MARGIN_X, MARGIN_Y, COL_WIDTH, table_height)
     pygame.draw.rect(screen, DARK_BLUE, table_rect)
     pygame.draw.rect(screen, GOLD, table_rect, 2)
     
-    # Superficie de contenido (importante para el scroll)
+    # Superficie de contenido
     content_height = len(hats) * (ITEM_HEIGHT + 10)
     content_surface = pygame.Surface((table_rect.width - 20, content_height))
     content_surface.fill(DARK_BLUE)
@@ -155,7 +158,7 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
         draw_text_with_shadow(content_surface, hat["nombre"], item_font, COLOR_TEXTO, COLOR_SOMBRA, (80, item_y + 15))
         draw_text_with_shadow(content_surface, estado, item_font, color_estado, COLOR_SOMBRA, (80, item_y + 40))
         
-        # Rectángulo clickeable (ajustado para scroll)
+        # Rectángulo clickeable
         click_rect = pygame.Rect(
             table_rect.x + 10,
             table_rect.y + 10 + item_y - scroll_offset,
@@ -168,22 +171,22 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
     max_scroll = max(0, content_height - table_rect.height)
     scroll_offset = max(0, min(scroll_offset, max_scroll))
     
-    # Dibujar contenido con scroll (CORRECCIÓN IMPORTANTE)
+    # Dibujar contenido con scroll
     screen.blit(content_surface, (table_rect.x + 10, table_rect.y + 10), 
                (0, scroll_offset, table_rect.width - 20, table_rect.height - 20))
     
-    # Barra de scroll (solo si es necesario)
+    # Barra de scroll
     if content_height > table_rect.height:
         scroll_bar_height = table_rect.height * (table_rect.height / content_height)
         scroll_bar_pos = table_rect.y + 10 + (table_rect.height - scroll_bar_height - 20) * (scroll_offset / max_scroll if max_scroll > 0 else 0)
         pygame.draw.rect(screen, LIGHT_GRAY, (table_rect.right-8, scroll_bar_pos, 6, scroll_bar_height))
     
-    # Área de información (entre la tabla y los botones)
+    # Área de información
     info_area_y = table_rect.bottom + 10
     info_bg = pygame.Rect(MARGIN_X, info_area_y, COL_WIDTH, INFO_AREA_HEIGHT)
     pygame.draw.rect(screen, GOLD, info_bg, 1)
     
-    # Mostrar información (error o sombrero equipado)
+    # Mostrar información
     current_hat = get_current_hat(sombrero_actual, sombreros_comprados)
     if error_message:
         error_text = f"ERROR: {error_message}"
@@ -225,6 +228,7 @@ def draw_shop_screen(screen, monedas, sombrero_actual, sombreros_comprados, scro
         jugar_rect.centerx - jugar_text.get_width()//2,
         jugar_rect.centery - jugar_text.get_height()//2
     ))
+
     
     pygame.display.flip()
     return button_rects, menu_rect, jugar_rect
