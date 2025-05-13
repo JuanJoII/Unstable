@@ -123,7 +123,6 @@ class Game:
                     if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.show_tutorial = True
-                        print("DEBUG: Botón Iniciar presionado")
                     elif lead_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
                         self.show_leaderboard = True
@@ -131,10 +130,8 @@ class Game:
                         # Forzar recarga de puntajes
                         puntajes = cargar_puntajes()
                         self.leaderboard_max_scroll = max(0, len(puntajes) * 50 - 400)
-                        print("DEBUG: Botón Ranking presionado - Mostrando leaderboard")
                     
                     elif exit_button_rect.collidepoint(event.pos):
-                        print("DEBUG: Botón Salir presionado")
                         return False
 
             elif self.game_over:
@@ -227,7 +224,6 @@ class Game:
                                 if not coin.collected and coin.check_collision(self.player.pos):
                                     self.coins_count += 1
                                     self.score += 10
-                                    print('Moneda Recogida')
                             
                             current_cell_value = self.grid[self.player.y][self.player.x]
                             if current_cell_value <= 0:
@@ -240,7 +236,6 @@ class Game:
                                 self.last_move_time = pygame.time.get_ticks()
 
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                    print("Reiniciando juego...")
                     self.reset_game()
                 
                 if self.show_store:
@@ -258,7 +253,6 @@ class Game:
 
                     elif siguiente_button_rect.collidepoint(event.pos):
                         self.tutorial_index += 1
-                        print(self.tutorial_index)
                         if self.tutorial_index > 3:
                             self.show_tutorial=False
 
@@ -315,9 +309,6 @@ class Game:
                         GRID_HEIGHT, 
                         self.coins
                     )
-                    
-                    if collected_coin:
-                        print("IA recogió una moneda")
                     
                     if not success or unstable_cell:
                         self.winner = "player"
@@ -381,11 +372,9 @@ if __name__ == "__main__":
         pygame.mixer.music.load('Assets/Sounds/bg_song.mp3')
         pygame.mixer.music.set_volume(0.7)  # 70% de volumen
         pygame.mixer.music.play(-1)  # -1 para loop infinito
-        print("Música iniciada correctamente")  # Mensaje de debug
     except Exception as e:
         print(f"No se pudo iniciar la música: {e}")
 
-    # Bucle principal del juego
     while True:
         if not juego.handle_events():
             break
@@ -393,7 +382,6 @@ if __name__ == "__main__":
         juego.render()
         juego.clock.tick(60)
     
-    # Detener la música al salir
     pygame.mixer.music.stop()
     pygame.quit()
     sys.exit()

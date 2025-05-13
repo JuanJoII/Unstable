@@ -25,7 +25,6 @@ class GameScreen:
             pygame.mixer.music.load('Assets/Sounds/bg_song.mp3')
             pygame.mixer.music.set_volume(0.2)  # Volumen
             self.music_loaded = True
-            print("Música cargada correctamente")  # Debug
         except Exception as e:
             print(f"Error cargando música: {e}")
             

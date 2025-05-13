@@ -117,7 +117,6 @@ class AI(pygame.sprite.Sprite):
                 if not coin.collected and (self.x, self.y) == (coin.x, coin.y):
                     coin.collected = True
                     self.coins_collected += 1
-                    print(f"IA recogió moneda! Total: {self.coins_collected}")
         
         return True
     
@@ -457,11 +456,6 @@ class AI(pygame.sprite.Sprite):
             going_to_unstable = grid[best_move[1]][best_move[0]] <= 1
             
             success = self.move(dx, dy, grid, player_pos, grid_width, grid_height, coins_group)
-            
-            # Si vamos a una casilla que se volverá inestable después de pisarla
-            if success and going_to_unstable:
-                print("IA se mueve a casilla casi inestable como último recurso")
-                
             return success and grid[best_move[1]][best_move[0]] < 0
         return False
     
