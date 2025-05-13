@@ -90,5 +90,4 @@ def draw_start_screen(screen):
 
     pygame.display.flip()
 
-
     return start_button_rect, leaderboard_button_rect, exit_button_rect

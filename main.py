@@ -7,6 +7,7 @@ from Screens.Start_Screen import draw_start_screen
 from Screens.End_Screen import draw_end_screen
 from Screens.Shop_Screen import draw_shop_screen
 from Screens.Leaderboard_Screen import draw_leaderboard_screen
+from Screens.Tutorial_Screen import draw_tuto_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
@@ -29,6 +30,7 @@ class Game:
         
         self.show_start_screen = True
         self.show_leaderboard = False
+        self.show_tutorial = False
         self.game_over = False
         self.winner = None
         self.turno_jugador = True
@@ -38,6 +40,7 @@ class Game:
         self.coins = pygame.sprite.Group()
         self.coins_count = 0
         self.score = 0
+        self.tutorial_index = 1
 
         self.show_store = False
         # self.monedas = self.coins_count
@@ -106,13 +109,11 @@ class Game:
 
             if self.show_start_screen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    start_button_rect, lead_button_rect,exit_button_rect = draw_start_screen(self.screen)
+                    start_button_rect, lead_button_rect, exit_button_rect = draw_start_screen(self.screen)
                     if start_button_rect.collidepoint(event.pos):
                         self.show_start_screen = False
-                        self.reset_game()
-                        self.game_screen = GameScreen()
+                        self.show_tutorial = True
                     elif lead_button_rect.collidepoint(event.pos):
-                        print("Mostrando tutorial...")
                         self.show_start_screen = False
                         self.show_leaderboard = True
                     elif exit_button_rect.collidepoint(event.pos):
@@ -216,6 +217,21 @@ class Game:
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.show_store = False
 
+            if self.show_tutorial:             
+                #self.tutorial_index = 1  # Empezamos en la primera pantalla del tutorial
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    saltar_button_rect, siguiente_button_rect = draw_tuto_screen(self.screen, self.tutorial_index)
+
+                    if saltar_button_rect.collidepoint(event.pos):
+                        self.show_tutorial=False
+
+                    elif siguiente_button_rect.collidepoint(event.pos):
+                        self.tutorial_index += 1
+                        print(self.tutorial_index)
+                        if self.tutorial_index > 3:
+                            self.show_tutorial=False
+
         return True
 
     def update(self):
@@ -292,6 +308,8 @@ class Game:
             draw_start_screen(self.screen)
         elif self.show_leaderboard:
             draw_leaderboard_screen(self.screen)
+        elif self.show_tutorial:
+            draw_tuto_screen(self.screen, self.tutorial_index)
         elif self.show_store:
             self.shop_button_rects, self.shop_menu_rect, self.shop_jugar_rect = draw_shop_screen(
                 self.screen,
