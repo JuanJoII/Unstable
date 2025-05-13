@@ -8,8 +8,16 @@
         "puntaje": 115
     },
     {
+        "nombre": "fsdfsd",
+        "puntaje": 104
+    },
+    {
         "nombre": "sdad",
         "puntaje": 102
+    },
+    {
+        "nombre": "dasda",
+        "puntaje": 101
     },
     {
         "nombre": "juanjo",
@@ -30,13 +38,5 @@
     {
         "nombre": "mil",
         "puntaje": 89
-    },
-    {
-        "nombre": "sdsads",
-        "puntaje": 89
-    },
-    {
-        "nombre": "hola",
-        "puntaje": 79
     }
 ]

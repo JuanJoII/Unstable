@@ -158,38 +158,38 @@ class Game:
 
             
             if self.show_store:
-                if event.type == pygame.MOUSEWHEEL:
-                    scroll_speed = 30 
-                    self.scroll_offset -= event.y * scroll_speed
-                    # Limitar el scroll_offset entre 0 y el máximo permitido
-                    max_scroll = max(0, len(hats) * 80 - (SCREEN_SIZE - 250))  # Calcula el máximo scroll posible
-                    self.scroll_offset = max(0, min(self.scroll_offset, max_scroll))
-                
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    for rect, hat in self.shop_button_rects:
-                        if rect.collidepoint(event.pos):
-                            if hat["nombre"] in self.sombreros_comprados:
-                                self.sombrero_actual = hat["nombre"]
-                                self.shop_error_message = None
-                            elif self.coins_count >= hat["precio"]:
-                                self.coins_count -= hat["precio"]
-                                self.sombreros_comprados.append(hat["nombre"])
-                                self.sombrero_actual = hat["nombre"]
-                                self.shop_error_message = None
-                            else:
-                                self.shop_error_message = "¡No tienes suficientes monedas!"
+                    if event.type == pygame.MOUSEWHEEL:
+                        scroll_speed = 30 
+                        self.scroll_offset -= event.y * scroll_speed
+                        # Limitar el scroll_offset entre 0 y el máximo permitido
+                        max_scroll = max(0, len(hats) * 80 - (SCREEN_SIZE - 250))  # Calcula el máximo scroll posible
+                        self.scroll_offset = max(0, min(self.scroll_offset, max_scroll))
                     
-                    # Manejo de botones MENÚ y JUGAR
-                    if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
-                        self.show_store = False
-                        self.show_start_screen = True
-                        self.scroll_offset = 0  # Resetear el scroll al salir
-                        self.shop_error_message = None
-                    elif self.shop_jugar_rect and self.shop_jugar_rect.collidepoint(event.pos):
-                        self.show_store = False
-                        self.scroll_offset = 0  # Resetear el scroll al salir
-                        self.reset_game()
-                        self.shop_error_message = None
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        for rect, hat in self.shop_button_rects:
+                            if rect.collidepoint(event.pos):
+                                if hat["nombre"] in self.sombreros_comprados:
+                                    self.sombrero_actual = hat["nombre"]
+                                    self.shop_error_message = None
+                                elif self.coins_count >= hat["precio"]:
+                                    self.coins_count -= hat["precio"]
+                                    self.sombreros_comprados.append(hat["nombre"])
+                                    self.sombrero_actual = hat["nombre"]
+                                    self.shop_error_message = None
+                                else:
+                                    self.shop_error_message = "¡No tienes suficientes monedas!"
+                        
+                        # Manejo de botones MENÚ y JUGAR
+                        if self.shop_menu_rect and self.shop_menu_rect.collidepoint(event.pos):
+                            self.show_store = False
+                            self.show_start_screen = True
+                            self.scroll_offset = 0  # Resetear el scroll al salir
+                            self.shop_error_message = None
+                        elif self.shop_jugar_rect and self.shop_jugar_rect.collidepoint(event.pos):
+                            self.show_store = False
+                            self.scroll_offset = 0  # Resetear el scroll al salir
+                            self.reset_game()
+                            self.shop_error_message = None
                             
             elif self.show_leaderboard:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -209,7 +209,7 @@ class Game:
                         self.leaderboard_max_scroll
                     ))
 
-            if not self.game_over and not self.show_start_screen:
+            if not self.game_over and not self.show_start_screen and not self.show_store:
                 if event.type == pygame.KEYDOWN:
                     if self.turno_jugador:
                         dx, dy = 0, 0
@@ -360,6 +360,14 @@ class Game:
         pygame.quit()
         sys.exit()
 
+    
+
 if __name__ == "__main__":
-    game = Game()
-    game.run()
+    juego = Game()
+    while True:
+        if not juego.handle_events():
+            break
+        juego.update()
+        juego.render()
+        juego.clock.tick(60)
+

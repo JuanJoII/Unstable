@@ -37,12 +37,12 @@ LIGHT_GRAY = (70, 70, 90)
 
 # Sombreros disponibles
 hats = [
-    {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png", "precio": 5},
-    {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png", "precio": 8},
-    {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png", "precio": 15},
-    {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_green.png", "precio": 20},
-    {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_onepi.png", "precio": 28},
-    {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_crown.png", "precio": 36},
+    {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png", "precio": 10},
+    {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png", "precio": 18},
+    {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png", "precio": 26},
+    {"nombre": "Sombrero Green", "imagen": "Assets/Hats/hat_green.png", "precio": 35},
+    {"nombre": "Sombrero One Pi", "imagen": "Assets/Hats/hat_onepi.png", "precio": 42},
+    {"nombre": "Sombrero Crown", "imagen": "Assets/Hats/hat_crown.png", "precio": 50},
 ]
 
 for hat in hats:

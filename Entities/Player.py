@@ -33,9 +33,12 @@ class Player(pygame.sprite.Sprite):
         """Carga la imagen del sombrero basado en el nombre"""
         # Lista de sombreros disponibles (debería coincidir con la de la tienda)
         hats = [
-            {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png"},
-            {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png"},
-            {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png"},
+        {"nombre": "Sombrero Azul", "imagen": "Assets/Hats/hat_blue.png", "precio": 5},
+        {"nombre": "Sombrero Rojo", "imagen": "Assets/Hats/hat_red.png", "precio": 8},
+        {"nombre": "Sombrero Dorado", "imagen": "Assets/Hats/hat_purple.png", "precio": 15},
+        {"nombre": "Sombrero Green", "imagen": "Assets/Hats/hat_green.png", "precio": 20},
+        {"nombre": "Sombrero One Pi", "imagen": "Assets/Hats/hat_onepi.png", "precio": 28},
+        {"nombre": "Sombrero Crown", "imagen": "Assets/Hats/hat_crown.png", "precio": 36},
         ]
         
         # Buscar el sombrero en la lista
