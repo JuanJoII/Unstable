@@ -11,6 +11,7 @@ from Screens.Tutorial_Screen import draw_tuto_screen
 from Screens.Game_screen import GameScreen
 from Entities.Player import Player
 from Entities.AI_MinMax import AI
+from Entities.AI_Improved import AI as AIImproved
 from Entities.AI_Prop import AI as AIProp
 from Entities.FuzzyIA import FuzzyAI
 from Entities.Coin import Coin
@@ -78,7 +79,7 @@ class Game:
         self.grid = generate_random_grid(GRID_WIDTH, GRID_HEIGHT)
         self.player = Player(0, 0, sombrero_actual=self.sombrero_actual)
         if ia_a_usar == 'MinMax':
-            self.ai = AI(GRID_WIDTH - 1, GRID_HEIGHT - 1)
+            self.ai = AIImproved(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         elif ia_a_usar == 'Prop':
             self.ai = AIProp(GRID_WIDTH - 1, GRID_HEIGHT - 1)
         elif ia_a_usar == 'Fuzzy':
