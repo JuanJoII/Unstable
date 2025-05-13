@@ -349,25 +349,33 @@ class Game:
         pygame.display.flip()
 
 
-    def run(self):
-        running = True
-        while running:
-            running = self.handle_events()
-            self.update()
-            self.render()
-            self.clock.tick(60)
-        
-        pygame.quit()
-        sys.exit()
-
-    
-
 if __name__ == "__main__":
+    # Inicialización explícita del mixer con parámetros óptimos
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.mixer.init()
+    
+    # Crear instancia del juego
     juego = Game()
+    
+    # Iniciar la música de fondo
+    try:
+        pygame.mixer.music.load('Assets/Sounds/bg_song.mp3')
+        pygame.mixer.music.set_volume(0.7)  # 70% de volumen
+        pygame.mixer.music.play(-1)  # -1 para loop infinito
+        print("Música iniciada correctamente")  # Mensaje de debug
+    except Exception as e:
+        print(f"No se pudo iniciar la música: {e}")
+
+    # Bucle principal del juego
     while True:
         if not juego.handle_events():
             break
         juego.update()
         juego.render()
         juego.clock.tick(60)
+    
+    # Detener la música al salir
+    pygame.mixer.music.stop()
+    pygame.quit()
+    sys.exit()
 

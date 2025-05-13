@@ -15,10 +15,33 @@ class GameScreen:
         self.coin_icon = pygame.transform.scale(self.coin_icon, (24, 24))
         self.score_icon = pygame.image.load("Assets/UI/Star.png").convert_alpha()
         self.score_icon = pygame.transform.scale(self.score_icon, (24, 24))
+
+        #Cargar musica
+        pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
         
+        # Cargar música
+        self.music_loaded = False
+        try:
+            pygame.mixer.music.load('Assets/Sounds/bg_song.mp3')
+            pygame.mixer.music.set_volume(0.2)  # Volumen
+            self.music_loaded = True
+            print("Música cargada correctamente")  # Debug
+        except Exception as e:
+            print(f"Error cargando música: {e}")
+            
         # Crear superficies semitransparentes para los contadores
         self.info_panel = pygame.Surface((SCREEN_SIZE, 40), pygame.SRCALPHA)
         self.info_panel.fill((0, 0, 0, 128))  # Fondo negro semitransparente
+
+    def start_music(self):
+        """Reproduce la música de fondo en loop"""
+        if self.music_loaded and not pygame.mixer.music.get_busy():
+            pygame.mixer.music.play(-1)  # -1 para loop infinito
+            print("Música iniciada")  # Debug
+    
+    def stop_music(self):
+        """Detiene la música"""
+        pygame.mixer.music.stop()
     
     def _load_image(self, path):
         image = pygame.image.load(path)
